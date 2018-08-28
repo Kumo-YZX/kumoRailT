@@ -1,0 +1,5 @@
+[{"varName":"seqId", "varType":"SMALLINT UNSIGNED", "primary":true},
+ {"varName":"staff", "varType":"SMALLINT UNSIGNED"},
+ {"varName":"depot", "varType":"SMALLINT UNSIGNED"},
+ {"varName":"emuType", "varType":"VARCHAR(128)"},
+ {"varName":"remark", "varType":"VARCHAR(256)"}]

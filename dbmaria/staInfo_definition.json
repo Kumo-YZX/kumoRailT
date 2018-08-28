@@ -1,0 +1,4 @@
+[{"varName":"staTele", "varType":"VARCHAR(3)", "primary":true},
+ {"varName":"staCn", "varType":"VARCHAR(36)"},
+ {"varName":"staPy", "varType":"VARCHAR(6)"},
+ {"varName":"staNum", "varType":"SMALLINT UNSIGNED"}]
