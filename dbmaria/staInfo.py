@@ -29,6 +29,9 @@ class table(dbBase):
             self.insertData({"staCn": infoSplit[1].encode("hex"), "staTele": infoSplit[2], "staPy": infoSplit[4], "staNum":int(infoSplit[5])})
         return 1
 
+    def insert(self, parameterDict):
+        self.insertData(parameterDict)
+
     def delete(self, key='', value=''):
         if key == '':
             self.deleteData()
@@ -50,6 +53,10 @@ class table(dbBase):
 
     def verify(self, key, value):
         res = self.verifyExistence([{key:{"judge":"=", "value":value}}])
+        return res
+
+    def verifySpecial(self, staNum):
+        res = self.verifyExistence([{'staNum':{'judge':'>=', 'value':staNum}}])
         return res
 
 
