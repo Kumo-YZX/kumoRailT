@@ -123,6 +123,11 @@ class table(dbBase):
         res = self.verifyExistence([{"trainStr":{"judge":"=", "value":trainStr}}])
         return res
 
+    def verifySingle(self, trainClass, trainNum0):
+        res = self.verifyExistence([{"trainClass":{"judge":"=", "value":trainClass},
+                                     "trainNum0":{"judge":"=", "value":trainNum0}}])
+        return res
+
     def delete(self, key='', value=''):
         if key == '':
             self.deleteData()
@@ -139,6 +144,13 @@ class table(dbBase):
             return 1, res
         else:
             return 0, []
+
+    def searchList(self, start, end, trainClass):
+        res = self.queryData(['trainStr'], [{"trainNum0":{"judge":"between", "start":start, "end":end},
+                                             "trainClass":{"judge":"=","value":trainClass},
+                                             "status":{"judge":"=","value":True}}])
+
+        return len(res), res
 
     def searchSingle(self, trainClass, trainNum, status=True):
         res = self.queryData([], [{"trainNum0":{"judge":"=", "value":trainNum},
