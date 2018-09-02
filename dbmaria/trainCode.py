@@ -24,7 +24,7 @@ class table(dbBase):
 
     def search(self, trainStr, depDate=''):
         if depDate == '':
-            res = self.queryData([], [{"trainStr":{"judge":">=", "value":trainStr}}])
+            res = self.queryData([], [{"trainStr":{"judge":"=", "value":trainStr}}])
         else:
             res = self.queryData([], [{"trainStr":{"judge":"=", "value":trainStr},
                                  "departDate":{"judge":">=", "value":depDate}}])
