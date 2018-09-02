@@ -1,12 +1,18 @@
 #---#
 
-import dbmaria
+def loadModule(name, path):
+    import os, imp
+    return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
+
+loadModule('dbmaria', 'dbmaria.py')
+
+from dbmaria import dbBase
 import json
 
-class table(dbmaria.dbBase):
+class table(dbBase):
 
     def __init__(self, configFile = 'dbconfig.json'):
-        dbmaria.dbBase.__init__(self, 'seq', configFile)
+        dbBase.__init__(self, 'seq', configFile)
 
     def create(self, definitionFile='seq_definition.json'):
         with open(definitionFile) as fi:
