@@ -25,6 +25,10 @@ class table(dbBase):
         res = self.searchRandom(proxyType, 1)
         return len(res), res
 
+    def search(self):
+        res = self.queryData([])
+        return len(res), res
+
     def updateStatus(self, proxyId, connectTimes, failTimes):
         self.updateData({"connectTimes":connectTimes, "failTimes":failTimes},
                         [{"proxyId":{"judge":"=", "value":proxyId}}])

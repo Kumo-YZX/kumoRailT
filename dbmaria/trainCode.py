@@ -28,11 +28,11 @@ class table(dbBase):
         else:
             res = self.queryData([], [{"trainStr":{"judge":"=", "value":trainStr},
                                  "departDate":{"judge":">=", "value":depDate}}])
+        return len(res), res
 
-        if len(res):
-            return 1, res
-        else:
-            return 0, []
+    def searchAll(self):
+        res = self.queryData([])
+        return len(res), res
 
     def delete(self, key='', value=''):
         if key == '':
