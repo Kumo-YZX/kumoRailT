@@ -46,10 +46,7 @@ class table(dbBase):
         else:
             res = self.queryData([], [{key:{"judge":"=", "value":value}}])
         
-        if len(res):
-            return 1, res
-        else:
-            return 0, []
+        return len(res), res
 
     def verify(self, key, value):
         res = self.verifyExistence([{key:{"judge":"=", "value":value}}])
