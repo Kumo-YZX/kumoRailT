@@ -97,6 +97,9 @@ class table(dbBase):
                          "trainStr":trainStr,
                          "status":status
                          })
+    
+    def insertDict(self, parameterDict):
+        self.insertData(parameterDict)
 
     def updateBase(self, OriginalTrain, PresentTrain, trainClass):
         self.updateData({"trainNum1":PresentTrain}, [{"trainNum0":{"judge":"=", "value":OriginalTrain}, "trainClass":{"judge":"=", "value":trainClass}}])

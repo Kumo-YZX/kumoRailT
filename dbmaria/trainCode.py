@@ -30,6 +30,9 @@ class table(dbBase):
                                  "departDate":{"judge":">=", "value":depDate}}])
         return len(res), res
 
+    def insertDict(self, parameterDict):
+        self.insertData(parameterDict)
+
     def searchAll(self):
         res = self.queryData([])
         return len(res), res

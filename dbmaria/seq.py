@@ -38,6 +38,9 @@ class table(dbBase):
 
         return 1
 
+    def insertDict(self, parameterDict):
+        self.insertData(parameterDict)
+
     def delete(self, key='', value=''):
         if key == '':
             self.deleteData()
