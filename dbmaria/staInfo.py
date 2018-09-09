@@ -11,8 +11,8 @@ import json
 
 class table(dbBase):
 
-    def __init__(self, configFile = 'dbconfig.json'):
-        dbBase.__init__(self, 'staInfo', configFile)
+    def __init__(self):
+        dbBase.__init__(self, 'staInfo')
 
     def create(self, definitionFile='staInfo_definition.json'):
         with open(definitionFile) as fi:
@@ -32,16 +32,16 @@ class table(dbBase):
     def insert(self, parameterDict):
         self.insertData(parameterDict)
 
-    def delete(self, key='', value=''):
-        if key == '':
+    def delete(self, key=None, value=None):
+        if key is None:
             self.deleteData()
         else:
             self.deleteData([{key:{"judge":"=", "value":value}}])
 
         return 1
 
-    def search(self, key='', value=''):
-        if key == '':
+    def search(self, key=None, value=None):
+        if key is None:
             res = self.queryData()
         else:
             res = self.queryData([], [{key:{"judge":"=", "value":value}}])
@@ -52,16 +52,22 @@ class table(dbBase):
         res = self.verifyExistence([{key:{"judge":"=", "value":value}}])
         return res
 
+    def updateSele(self, staTele, status=0):
+        self.updateData({"seleSta":status},
+                        [{"staTele":{"judge":"=", "value":staTele}}])
+
     def verifySpecial(self, staNum):
         res = self.verifyExistence([{'staNum':{'judge':'>=', 'value':staNum}}])
         return res
 
-
-def initilize():
-    tbObj = table()
-    tbObj.create()
-    tbObj.delete()
-    tbObj.updateAll()
-
 if __name__ == "__main__":
-    initilize()
+    import sys
+    obj = table()
+    if sys.argv[1] == 'cre':
+        obj.create()
+    elif sys.argv[1] == 'upd':
+        obj.updateAll()
+    elif sys.argv[1] == 'del':
+        obj.delete()
+    else:
+        print 'WHAT DO YOU WANT TO DO?'

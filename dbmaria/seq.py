@@ -63,7 +63,7 @@ class table(dbBase):
 def initalize():
     seqObj = table()
     seqObj.create()
-    seqObj.importAll()
+  #  seqObj.importAll()
 
 if __name__ == "__main__":
     initalize()
