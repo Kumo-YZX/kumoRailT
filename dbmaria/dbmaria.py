@@ -10,7 +10,7 @@ debug = 0
 
 class dbBase(object):
 
-    def __init__(self, tableName, configFileName = 'dbconfig.json'):
+    def __init__(self, tableName, configFileName = '/var/ww4/kumoRailT/dbmaria/dbconfig.json'):
         self.tableName = tableName
         with open(configFileName) as cofi:
             config = json.load(cofi)
@@ -128,37 +128,53 @@ class dbBase(object):
             print 'DELETE DATA FROM ' + self.tableName + ' DONE'
         return 1
 
-    def queryData(self, columnList=[], conditionDict=[]):
+    def queryData(self, columnList=[], conditionDict=[], orderDict={}):
         firstCode = 'SELECT '
         if len(columnList):
             for everyColumn in columnList:
                 firstCode = firstCode + ' '  + everyColumn + ','
         else:
-            firstCode = firstCode + ' *  '
+            firstCode = firstCode + ' * '
 
         firstCode = firstCode[0:-1] + ' FROM ' + self.tableName
 
-        lastCode = ' WHERE '
+        conditionCode = ' WHERE '
         if len(conditionDict):
             for productIndex in range(len(conditionDict)):
-                lastCode = lastCode + '('
+                conditionCode = conditionCode + '('
                 for everyKey in list(conditionDict[productIndex].keys()):
-                    lastCode = lastCode + everyKey + conditionDict[productIndex][everyKey]['judge'] 
-                    if isinstance(conditionDict[productIndex][everyKey]['value'], basestring):
-                        lastCode = lastCode + '\'' + conditionDict[productIndex][everyKey]['value'] + '\''
+                    if conditionDict[productIndex][everyKey]['judge'] == 'between':
+                        conditionCode = conditionCode + '(' + everyKey + ' between ' +\
+                                   str(conditionDict[productIndex][everyKey]['start']) +\
+                                   ' AND ' + str(conditionDict[productIndex][everyKey]['end']) + ')'
                     else:
-                        lastCode = lastCode + str(conditionDict[productIndex][everyKey]['value'])
-                    lastCode = lastCode + ' AND '
-                lastCode = lastCode[0:-5] + ')'
+                        conditionCode = conditionCode + everyKey + conditionDict[productIndex][everyKey]['judge']
+                        if isinstance(conditionDict[productIndex][everyKey]['value'], basestring):
+                            conditionCode = conditionCode + '\'' + conditionDict[productIndex][everyKey]['value'] + '\''
+                        else:
+                            conditionCode = conditionCode + str(conditionDict[productIndex][everyKey]['value'])
+                    conditionCode = conditionCode + ' AND '
+                conditionCode = conditionCode[0:-5] + ')'
                 if not(productIndex==len(conditionDict)-1):
-                    lastCode = lastCode + ' OR '
-            lastCode = lastCode + ';'
+                    conditionCode = conditionCode + ' OR '
+            conditionCode = conditionCode
         else:
-            lastCode = ';'
+            conditionCode = ''
 
-        sqlCode = firstCode + lastCode
+        orderCode = ''
+        if len(orderDict):
+            if 'variable' in orderDict:
+                orderCode = orderCode + ' ORDER BY ' + orderDict['variable']
+            if 'desc' in orderDict:
+                if orderDict['desc']:
+                    orderCode = orderCode + ' DESC '
+            if 'amount' in orderDict:
+                orderCode = orderCode + ' LIMIT ' + str(orderDict['amount'])
+
+        sqlCode = firstCode + conditionCode + orderCode + ';'
         del firstCode
-        del lastCode
+        del conditionCode
+        del orderCode
 
         if debug:
             print sqlCode
@@ -171,6 +187,55 @@ class dbBase(object):
             print 'QUERT DATA FROM ' + self.tableName + ' DONE'
 
         return result
+
+    def queryIntersect(self, conditionDict1, conditionDict2, columnList=None):
+        firstCode = 'SELECT'
+        if columnList is not None:
+            for everyColumn in columnList:
+                firstCode = firstCode + ' '  + everyColumn + ','
+        else:
+            firstCode = firstCode + ' * '
+
+        firstCode = firstCode[0:-1] + ' FROM ' + self.tableName
+
+        key1 = (conditionDict1.keys())[0]
+        value1 = conditionDict1[key1]
+        key2 = (conditionDict2.keys())[0]
+        value2 = conditionDict2[key2]
+
+        sqlCode = '(' + firstCode + ' WHERE ' + key1 + ' = \'' + value1 + '\')' +\
+                  ' INTERSECT ' +\
+                  '(' + firstCode + ' WHERE ' + key2 + ' = \'' + value2 + '\');'
+
+        if debug:
+            print sqlCode
+
+        with self.dbConnection.cursor() as cursor:
+            cursor.execute(sqlCode)
+            result = cursor.fetchall()
+
+        if debug:
+            print 'QUERT DATA FROM ' + self.tableName + ' DONE'
+
+        return result
+
+    def queryJoin(self):
+        sqlCode = 'SELECT a.trainStr, s.seleSta, count(*) arrCount FROM arrival a ' +\
+                  'INNER JOIN staInfo s WHERE a.staTele = s.staTele AND s.seleSta = 1 ' +\
+                  'GROUP BY a.trainStr HAVING arrCount > 1 ORDER BY arrCount DESC;'
+
+        if debug:
+            print sqlCode
+
+        with self.dbConnection.cursor() as cursor:
+            cursor.execute(sqlCode)
+            result = cursor.fetchall()
+
+        if debug:
+            print 'QUERT DATA FROM ' + self.tableName + ' DONE'
+
+        return result
+
 
     def verifyExistence(self, conditionDict=[]):
         firstCode = 'SELECT COUNT(1) FROM ' + self.tableName
