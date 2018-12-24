@@ -1,9 +1,0 @@
-[{"varName":"proxyId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true}, 
- {"varName":"address", "varType":"VARCHAR(15)"}, 
- {"varName":"port", "varType":"SMALLINT UNSIGNED"}, 
- {"varName":"failTimes", "varType":"MEDIUMINT UNSIGNED"}, 
- {"varName":"connectTimes", "varType":"MEDIUMINT UNSIGNED"}, 
- {"varName":"country", "varType":"VARCHAR(64)"}, {"varName":"delay", "varType":"SMALLINT UNSIGNED"}, 
- {"varName":"state", "varType":"VARCHAR(16)"}, 
- {"varName":"http", "varType":"BOOLEAN"}, 
- {"varName":"https", "varType":"BOOLEAN"}]
