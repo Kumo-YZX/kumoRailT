@@ -1,0 +1,9 @@
+[{"varName":"subArrId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true},
+ {"varName":"arrivalId", "varType":"INT UNSIGNED", "foreign":{"table":"arrival", "var":"arrivalId"}},
+ {"varName":"staTele", "varType":"VARCHAR(3)"},
+ {"varName":"staRank", "varType":"TINYINT UNSIGNED"},
+ {"varName":"category", "varType":"BOOLEAN"},
+ {"varName":"scheduleDate", "varType":"TINYINT UNSIGNED"},
+ {"varName":"scheduleTime", "varType":"SMALLINT UNSIGNED"},
+ {"varName":"trainStr", "varType":"VARCHAR(8)"},
+ {"varName":"status", "varType":"BOOLEAN"}]

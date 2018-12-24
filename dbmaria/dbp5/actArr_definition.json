@@ -1,0 +1,6 @@
+[{"varName":"actArrId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true},
+ {"varName":"subArrId", "varType":"INT UNSIGNED", "foreign":{"table":"subArr", "var":"subArrId"}},
+ {"varName":"scheduleDate", "varType":"DATE"},
+ {"varName":"scheduleTime", "varType":"SMALLINT UNSIGNED"},
+ {"varName":"delay", "varType":"SMALLINT UNSIGNED"},
+ {"varName":"queryMark", "varType":"BOOLEAN"}]
