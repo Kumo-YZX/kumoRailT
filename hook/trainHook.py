@@ -1,11 +1,16 @@
-#---#
+#----------------------------------------------------------------#
+# Module Name: TrainHook #
+# Funtion: Import train&trainCode data from local file. #
+# Author: Kumo #
+# Last Edit: Dec/24/2018 #
+#----------------------------------------------------------------#
 
 def loadModule(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('train', '../dbmaria/train.py')
-loadModule('trainCode', '../dbmaria/trainCode.py')
+loadModule('train', '../dbmaria/dbp3/train.py')
+loadModule('trainCode', '../dbmaria/dbp3/trainCode.py')
 
 import train 
 import trainCode
@@ -168,8 +173,6 @@ class trainInfoHook(object):
                     else:
                         print everyTrain['station_train_code'] + ' NOT EXIST'
 
-
-
 class test(object):
     
     def __init__(self):
@@ -180,7 +183,7 @@ class test(object):
         self.myhook.importFile()
         myDate = date.today()
 
-        for dayDelta in range(10):
+        for dayDelta in range(30):
             myDate = myDate + timedelta(days=1)
             myDateStr = myDate.strftime("%Y-%m-%d")
             if myDateStr in self.myhook.allList:
