@@ -1,4 +1,0 @@
-[{"varName":"trainCodeId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true},
- {"varName":"trainStr", "varType":"VARCHAR(8)", "foreign":{"table":"train", "var":"trainStr"}},
- {"varName":"departDate", "varType":"DATE"},
- {"varName":"trainCode", "varType":"VARCHAR(12)"}]
