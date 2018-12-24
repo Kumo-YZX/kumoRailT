@@ -1,0 +1,2 @@
+[{"varName":"depotId", "varType":"TINYINT UNSIGNED"},
+ {"varName":"depotCn", "varType":"VARCHAR(36)"}]
