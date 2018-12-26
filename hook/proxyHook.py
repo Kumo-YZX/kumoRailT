@@ -1,10 +1,17 @@
-#---#
+#----------------------------------------------------------------#
+# Module Name: ProxyHook #
+# Function: Search for proxys that are avilable. #
+# Author: Kumo Lam(github.com/Kumo-YZX) #
+# Last Edit: Dec/27/2018 #
+#----------------------------------------------------------------#
 
 def loadModule(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('proxy', '../dbmaria/proxy.py')
+loadModule('proxy', '../dbmaria/dbproxy/proxy.py')
+
+testUrl = 'https://search.12306.cn/search/v1/train/search?keyword=z1&date=20181228'
 
 import proxy 
 
@@ -14,16 +21,18 @@ import urllib2
 import json
 import socket, httplib
 
-header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36",
+header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
          "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
 
 class proxyData(object):
 
     def __init__(self):
         self.proxyDb = proxy.table()
-        print 'PROXY HOOK INIT'
+        print 'proxyHook.py: Info: Init done.'
 
     def getProxy(self):
+        """Get proxy text from file.
+        """
         with open('proxy1.html', 'r') as fi:
             rawData = fi.read()
         self._proxyList =[]
@@ -56,7 +65,9 @@ class proxyData(object):
             self._proxyList.append(sonDict)
         print len(self._proxyList)
 
-    def verifyProxy(self, fileName='proxyList'):
+    def verifyProxy(self, fileName='proxyList', siteUrl=testUrl):
+        """Verify if the proxy is avilable for specified site.
+        """
         from datetime import date
         fileName = fileName + date.today().strftime('%Y%m%d') + '.json'
         proxyNo =0
@@ -66,8 +77,7 @@ class proxyData(object):
             proxySupport = urllib2.ProxyHandler({'http':proxyUrl})
             opener = urllib2.build_opener(proxySupport)
             urllib2.install_opener(opener)
-            request =urllib2.Request('http://mobile.12306.cn/weixin/czxx/queryByTrainNo?train_no=24000000Z10D&from_station_telecode=BBB&to_station_telecode=BBB&depart_date=2018-08-28',
-                                    headers=header)
+            request =urllib2.Request(siteUrl, headers=header)
             try:
                 ipStr = urllib2.urlopen('http://icanhazip.com', timeout=4).read()[0:-1]
                 print ipStr
@@ -75,14 +85,14 @@ class proxyData(object):
                     print (urllib2.urlopen(request, timeout=8).read())[110:180]
                     self._verifyList.append(self._proxyList[proxyNo])
                     if self.proxyDb.verify(self._proxyList[proxyNo]['address'], self._proxyList[proxyNo]['port']):
-                        print 'THIS PROXY ALREADY EXISTS'
+                        print 'proxyHook.py: Info: This proxy already exists.'
                     else:
                         self.proxyDb.insertDict(self._proxyList[proxyNo])
-                        print 'NEW PROXY INSERTED'
+                        print 'proxyHook.py: Info: Find a new proxy.'
                 else:
-                    print 'IP VERIFY FAILED'
+                    print 'proxyHook.py: Info: IP verify fails..'
             except Exception as error:#(urllib2.HTTPError, urllib2.URLError, socket.timeout, socket.error, httplib.BadStatusLine) as error:
-                print 'ERROR OCCURS'
+                print 'proxyHook.py: Error: An error occurs with this proxy.'
                 print error
                 self._proxyList[proxyNo]['state'] = 'No'
             finally:
