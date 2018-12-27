@@ -77,7 +77,7 @@ class table(dbBase):
     def verifyTrain(self, trainClass, trainNum):
         """Count the trains that match the condition.
            The trainClass must be a charater and trainNum must be a integer less than 1w.
-           A list of dict that contrains the result will be returned.
+           Result is a single number.
         """
         res = self.verifyExistence([{"trainClass":trainClass},
                                     {"trainNum0":trainNum,

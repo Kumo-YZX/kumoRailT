@@ -28,7 +28,7 @@ class table(dbBase):
            The departDate parameter must be in YYYY-MM-DD fromat.
            The trainStr and trainCode parameter must be strings with length of 8 and 12.
         """
-        if not(self.verify(trainStr, departDate)[0]['COUNT(1)']):
+        if not(self.verify(trainStr, departDate)):
             self.insertData({"trainStr":trainStr, "departDate":departDate, "trainCode":trainCode})
 
     def search(self, trainStr, depDate=''):
