@@ -91,7 +91,7 @@ class table(dbBase):
             res = self.verifyExistence([])
         else:
             res = self.verifyExistence([{"trainStr":{"judge":"=", "value":trainStr}}])
-        return res
+        return res[0]['COUNT(1)']
 
     def searchJoin(self):
         """

@@ -86,10 +86,10 @@ class table(dbBase):
 
     def verifySpecial(self, staNum):
         """Verify the existence of marked special data.
-           Amount of this stations will be returned ###????something wrong here
+           Amount of this stations(a number) will be returned.
         """
         res = self.verifyExistence([{'staNum':{'judge':'>=', 'value':staNum}}])
-        return res
+        return res[0]['COUNT(1)']
 
 if __name__ == "__main__":
     import sys
