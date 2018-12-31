@@ -2,7 +2,7 @@
 # Module Name: ArrHook #
 # Function: Import train arrival data form web page. #
 # Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Dec/28/2018 #
+# Last Edit: Dec/31/2018 #
 #----------------------------------------------------------------#
 
 def loadModule(name, path):
@@ -155,26 +155,30 @@ class trainArrHook(object):
         """Get all arrivals in provided region.
            Parameter start and end marks the base and top of region.
         """
-        from datetime import date
+        from datetime import date, timedelta
         import time
+        dateTomorrow = date.today() + timedelta(days = 1)
         regionStatus, trainList = self.trainDb.searchList(start, end, trainClass)
         print 'arrHook.py: Info: There are {} trains in this region.'.format(regionStatus)
         for everyTrain in trainList:
             print 'arrHook.py: Info: We are now import {}.'.format(everyTrain['trainStr'])
-            self.addTrain(everyTrain['trainStr'], date.today().strftime("%Y-%m-%d"))
+            self.addTrain(everyTrain['trainStr'], dateTomorrow.strftime("%Y-%m-%d"))
             time.sleep(1)
 
     def getMissingTrain(self, vacancyTrainFile='vacancyList.json'):
         """Add arrivals of failed trains.
            Parameter file name are optional.
         """
-        from datetime import date
+        from datetime import date, timedelta
+        import time
+        dateTomorrow = date.today() + timedelta(days = 1)
         with open(vacancyTrainFile, 'r') as fi:
             vacancyList = json.load(fi)
         print 'arrHook.py: Info: There are {} trains in this region.'.format(len(vacancyList))
         for everyTrain in vacancyList:
             print 'arrHook.py: Info: We are now import [{}].'.format(everyTrain)
-            self.addTrain(everyTrain, date.today().strftime("%Y-%m-%d"))
+            self.addTrain(everyTrain, dateTomorrow.strftime("%Y-%m-%d"))
+            time.sleep(1)
 
 
     def check(self, trainClass, start=0, end=10000):
