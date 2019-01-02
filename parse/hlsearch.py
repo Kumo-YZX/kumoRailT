@@ -128,8 +128,8 @@ class hls(object):
             return chnword.stationDoNotExist.decode('hex')
         reply = ''
         for everySta in stationInfo:
-            reply = reply + chnword.station.decode('hex') + ':' + everySta['staTele'].encode('utf8') + ' '
-            reply = reply + chnword.telecode.decode('hex') + ':' + everySta['staCn'].decode('hex') + '\n'
+            reply = reply + chnword.telecode.decode('hex') + ':' + everySta['staTele'].encode('utf8') + ' '
+            reply = reply + chnword.station.decode('hex') + ':' + everySta['staCn'].decode('hex') + '\n'
 
         return reply[0:-1]
 
