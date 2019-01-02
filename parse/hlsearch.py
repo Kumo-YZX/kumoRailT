@@ -2,7 +2,7 @@
 # Module Name: hlsearch(high-level search) #
 # Function: Connect the database and return info to the parse module. #
 # Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Dec/31/2018 #
+# Last Edit: Jan/01/2019 #
 #----------------------------------------------------------------#
 
 def loadModule(name, path):
@@ -29,6 +29,7 @@ class hls(object):
     def seqs(self, trainNum, trainClass):
         """Provide the sequence and department & terminal station of a train.
            Parameter trainNum and trainClass must be provided.
+           TrainNum can be in any(string/integer) format.
            Return value(Reply) is in Chn format.
         """
         reply = trainClass + str(trainNum) + ' '
@@ -42,6 +43,8 @@ class hls(object):
             print 'hlseach.py: Warning: This train does not exist.'
             return reply + chnword.trainDoNotExist.decode('hex')
         arrStatus, arrInfo = arrivalTable.search(trainInfo[0]['trainStr'])
+        if not arrStatus:
+            return chnword.trainExistsButNoArrival.decode('hex')
         # Search for the dep & arr station of this train.
         firstStatus, firstInfo = staTable.search('staTele', arrInfo[0]['staTele'])
         lastStatus, lastInfo = staTable.search('staTele', arrInfo[-1]['staTele'])
@@ -85,6 +88,7 @@ class hls(object):
     def arrs(self, trainNum, trainClass):
         """Get all the arrivals of a train.
            Parameter trainNum and trainClass must be provided.
+           TrainNum can be in any(string/integer) format.
            Return value(Reply) is in Chn format.
         """
         # Initialize the train/arrival/station table object.
@@ -99,6 +103,8 @@ class hls(object):
         reply = chnword.trainNo.decode('hex') + ':' + trainClass + str(trainNum) +'\n'
         # Search for all the arrivals.
         arrStatus, arrInfo = arrivalDB.search(trainInfo[0]['trainStr'])
+        if not arrStatus:
+            return chnword.trainExistsButNoArrival.decode('hex')
         del arrStatus
         # Format them.
         for everyArr in arrInfo:
