@@ -28,14 +28,17 @@ class WxHandler(tornado.web.RequestHandler):
         """Handle the GET request.
            GET handler is used for the verification of WX server.
         """
+        import json
         print 'server.py: Info: WxHandler: GET request from {}'.format(self.request.remote_ip)
         # Catch structures from request object.
-        requestDict = self.request.query
+        print 'Timestamp:[{}]'.format(self.get_query_argument('timestamp'))
+        print 'Signature:[{}]'.format(self.get_query_argument('signature'))
+        print 'Echostr:[{}]'.format(self.get_query_argument('echostr'))
 
         try:
-            paraList = [config.token, requestDict['timestamp'], requestDict['nonce']]
-            sign = requestDict['signature']
-            echo = requestDict['echostr']
+            paraList = [config.token, self.get_query_argument('timestamp'), self.get_query_argument('nonce')]
+            sign = self.get_query_argument('signature')
+            echo = self.get_query_argument('echostr')
             paraList.sort()
 
             # Conculate hash to verify the signature.
