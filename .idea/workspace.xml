@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="27c36a62-6266-4d4d-ab02-a99df69f1d89" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/dbmaria/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbmaria.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbmaria.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbmaria2.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbmaria2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp1/staInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp1/staInfo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp1/staInfo_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp1/staInfo_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp2/depot.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp2/depot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp2/depot_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp2/depot_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp2/seq.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp2/seq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp2/seq_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp2/seq_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp3/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp3/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp3/trainCode.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp3/trainCode.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp3/trainCode_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp3/trainCode_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp3/train_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp3/train_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp4/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp4/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp4/arrival_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp4/arrival_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp5/actArr.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp5/actArr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp5/actArrTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp5/actArrTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp5/actArr_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp5/actArr_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp5/subArr.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp5/subArr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbp5/subArr_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbp5/subArr_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbproxy/proxy.py" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbproxy/proxy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbmaria/dbproxy/proxy_definition.json" beforeDir="false" afterPath="$PROJECT_DIR$/dbmaria/dbproxy/proxy_definition.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encrypt/Sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/encrypt/Sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encrypt/WXBizMsgCrypt.py" beforeDir="false" afterPath="$PROJECT_DIR$/encrypt/WXBizMsgCrypt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encrypt/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/encrypt/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encrypt/ierror.py" beforeDir="false" afterPath="$PROJECT_DIR$/encrypt/ierror.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hook/arrHook.py" beforeDir="false" afterPath="$PROJECT_DIR$/hook/arrHook.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hook/proxyHook.py" beforeDir="false" afterPath="$PROJECT_DIR$/hook/proxyHook.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hook/seqHook.py" beforeDir="false" afterPath="$PROJECT_DIR$/hook/seqHook.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hook/trainHook.py" beforeDir="false" afterPath="$PROJECT_DIR$/hook/trainHook.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse/chnword.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse/chnword.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse/hlsearch.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse/hlsearch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse/parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse/parse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tool/migrate.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool/migrate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tool/tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool/tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wx/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wx/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wx/receive.py" beforeDir="false" afterPath="$PROJECT_DIR$/wx/receive.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wx/reply2.py" beforeDir="false" afterPath="$PROJECT_DIR$/wx/reply2.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="380">
+              <caret line="26" column="17" selection-start-line="26" selection-start-column="17" selection-end-line="26" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/parse/chnword.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="152">
+              <caret line="8" column="5" lean-forward="true" selection-start-line="8" selection-start-column="5" selection-end-line="8" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/parse/hlsearch.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="61" column="62" lean-forward="true" selection-start-line="61" selection-start-column="62" selection-end-line="61" selection-end-column="62" />
+              <folding>
+                <element signature="e#664#717#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/parse/parse.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3173">
+              <caret line="167" column="8" selection-start-line="167" selection-start-column="8" selection-end-line="167" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/readme.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor />
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>trainClass</find>
+      <find>chnword</find>
+      <find>parseObject</find>
+      <find>highLevelSearch</find>
+      <find>highlevel_search</find>
+      <find>judgeType</find>
+      <find>parseMsg</find>
+      <find>trainNum</find>
+      <find>parse_msg</find>
+      <find>sta_table</find>
+      <find>hls</find>
+      <find>Hls</find>
+      <find>lastInfo</find>
+      <find>seqDB</find>
+      <find>loca</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>train_class</replace>
+      <replace>query_word</replace>
+      <replace>parse_object</replace>
+      <replace>highlevel_search</replace>
+      <replace>high_level_search</replace>
+      <replace>judge_type</replace>
+      <replace>parse_msg</replace>
+      <replace>train_num</replace>
+      <replace>ParseMsg</replace>
+      <replace>sta_table</replace>
+      <replace>last_status</replace>
+      <replace>seq_db</replace>
+      <replace>seq_status</replace>
+      <replace>vehicle_status</replace>
+      <replace>station_info</replace>
+      <replace>location</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/parse/parse.py" />
+        <option value="$PROJECT_DIR$/parse/hlsearch.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="292" />
+    <option name="y" value="27" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="kumoRailT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="kumoRailT" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="kumoRailT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="kumoRailT" type="462c0819:PsiDirectoryNode" />
+              <item name="parse" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="27c36a62-6266-4d4d-ab02-a99df69f1d89" name="Default Changelist" comment="" />
+      <created>1548060106744</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1548060106744</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18797815" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" weight="0.32937366" />
+      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="26" column="17" selection-start-line="26" selection-start-column="17" selection-end-line="26" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/readme.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parse/chnword.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="8" column="5" lean-forward="true" selection-start-line="8" selection-start-column="5" selection-end-line="8" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parse/parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3173">
+          <caret line="167" column="8" selection-start-line="167" selection-start-column="8" selection-end-line="167" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parse/hlsearch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="61" column="62" lean-forward="true" selection-start-line="61" selection-start-column="62" selection-end-line="61" selection-end-column="62" />
+          <folding>
+            <element signature="e#664#717#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

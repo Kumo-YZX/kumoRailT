@@ -1,115 +1,116 @@
-#----------------------------------------------------------------#
 # Module Name: hlsearch(high-level search) #
 # Function: Connect the database and return info to the parse module. #
 # Author: Kumo Lam(github.com/Kumo-YZX) #
 # Last Edit: Jan/01/2019 #
-#----------------------------------------------------------------#
 
-def loadModule(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('arrival', '../dbmaria/dbp4/arrival.py')
-loadModule('staInfo', '../dbmaria/dbp1/staInfo.py')
-loadModule('trainCode', '../dbmaria/dbp3/trainCode.py')
-loadModule('train', '../dbmaria/dbp3/train.py')
-loadModule('seq', '../dbmaria/dbp2/seq.py')
-loadModule('depot', '../dbmaria/dbp2/depot.py')
-loadModule('tool', '../tool/tool.py')
+
+load_module('arrival', '../dbmaria/dbp4/arrival.py')
+load_module('staInfo', '../dbmaria/dbp1/staInfo.py')
+load_module('trainCode', '../dbmaria/dbp3/trainCode.py')
+load_module('train', '../dbmaria/dbp3/train.py')
+load_module('seq', '../dbmaria/dbp2/seq.py')
+load_module('depot', '../dbmaria/dbp2/depot.py')
+load_module('tool', '../tool/tool.py')
 
 import arrival, staInfo, trainCode, train, seq, depot
 import tool
 import chnword
 
-class hls(object):
+
+class Hls(object):
 
     def __init__(self):
-        print 'hlsearch.py: Info: High level search loaded.'
+        print('hlsearch.py: Info: High level search loaded.')
 
-    def seqs(self, trainNum, trainClass):
+    def seqs(self, train_num, train_class):
         """Provide the sequence and department & terminal station of a train.
-           Parameter trainNum and trainClass must be provided.
-           TrainNum can be in any(string/integer) format.
+           Parameter train_num and train_class must be provided.
+           train_num can be in any(string/integer) format.
            Return value(Reply) is in Chn format.
         """
-        reply = trainClass + str(trainNum) + ' '
+        reply = train_class + str(train_num) + ' '
         # Initialize the train/arrival/station table object.
-        trainDB = train.table()
-        arrivalTable = arrival.table()
-        staTable = staInfo.table()
+        train_db = train.table()
+        arrival_table = arrival.table()
+        sta_table = staInfo.table()
         # Search for the train.
-        trainStatus, trainInfo = trainDB.searchDual(trainClass, str(trainNum))
-        if not trainStatus:
-            print 'hlseach.py: Warning: This train does not exist.'
+        train_status, train_info = train_db.searchDual(train_class, str(train_num))
+        if not train_status:
+            print('hlseach.py: Warning: This train does not exist.')
             return reply + chnword.trainDoNotExist.decode('hex')
-        arrStatus, arrInfo = arrivalTable.search(trainInfo[0]['trainStr'])
-        if not arrStatus:
+        train_status, arr_info = arrival_table.search(train_info[0]['trainStr'])
+        if not train_status:
             return chnword.trainExistsButNoArrival.decode('hex')
         # Search for the dep & arr station of this train.
-        firstStatus, firstInfo = staTable.search('staTele', arrInfo[0]['staTele'])
-        lastStatus, lastInfo = staTable.search('staTele', arrInfo[-1]['staTele'])
-        reply = reply + firstInfo[0]['staCn'].decode('hex') + '-' + lastInfo[0]['staCn'].decode('hex') + '\n'
-        del arrStatus, firstStatus, lastStatus, arrInfo
-        del arrivalTable, staTable
+        first_status, first_info = sta_table.search('staTele', arr_info[0]['staTele'])
+        last_status, last_info = sta_table.search('staTele', arr_info[-1]['staTele'])
+        reply = reply + first_info[0]['staCn'].decode('hex') + '-' + last_info[0]['staCn'].decode('hex') + '\n'
+        del train_status, first_status, last_status, arr_info
+        del arrival_table, sta_table
         # Initialize the sequence/depot table object.
-        seqDB = seq.table()
-        depotDB = depot.table()
+        seq_db = seq.table()
+        depot_db = depot.table()
         # Search for the depot & sequence data.
-        seqStatus, seqInfo = seqDB.search('seqID', trainInfo[0]['seqId'])
-        reply = reply + chnword.EMUType.decode('hex') + ':' + seqInfo[0]['emuType'].decode('hex') + '\n'
-        sDepotStatus, sDepotInfo = depotDB.search(int(seqInfo[0]['staff']))
-        vDepotStatus, vDepotInfo = depotDB.search(int(seqInfo[0]['depot']))
-        reply = reply + sDepotInfo[0]['depotCn'].decode('hex') + chnword.staffDep.decode('hex') + ' '
-        reply = reply + vDepotInfo[0]['depotCn'].decode('hex') + chnword.vehicleDep.decode('hex') + '\n'
-        del sDepotStatus, sDepotInfo, vDepotStatus, vDepotInfo
-        seqTrainStatus, seqTrains = trainDB.search('seqId', trainInfo[0]['seqId'])
-        del seqTrainStatus, seqStatus
+        seq_status, seq_info = seq_db.search('seqID', train_info[0]['seqId'])
+        reply = reply + chnword.EMUType.decode('hex') + ':' + seq_info[0]['emuType'].decode('hex') + '\n'
+        staff_status, staff_info = depot_db.search(int(seq_info[0]['staff']))
+        vehicle_status, vehicle_info = depot_db.search(int(seq_info[0]['depot']))
+        reply = reply + staff_info[0]['depotCn'].decode('hex') + chnword.staffDep.decode('hex') + ' '
+        reply = reply + vehicle_info[0]['depotCn'].decode('hex') + chnword.vehicleDep.decode('hex') + '\n'
+        del staff_status, staff_info, vehicle_status, vehicle_info
+        seq_search_status, seq_search_trains = train_db.search('seqId', train_info[0]['seqId'])
+        del seq_search_status, seq_status
         from operator import itemgetter
-        reply = reply + chnword.seqNo.decode('hex') +':'
+        reply = reply + chnword.seqNo.decode('hex') + ':'
         # Sort the trains in the same sequence and format the reply.
-        seqTrains = sorted(seqTrains, key=itemgetter('seqRank'))
-        for everyTrain in seqTrains:
-            reply = reply + tool.correctClass(everyTrain['trainClass']).encode('utf8')
-            reply = reply + str(everyTrain['trainNum0'])
-            if everyTrain['trainNum0'] != everyTrain['trainNum1']:
-                tnStr0 = str(everyTrain['trainNum0'])
-                tnStr1 = str(everyTrain['trainNum1'])
+        seq_search_trains = sorted(seq_search_trains, key=itemgetter('seqRank'))
+        for everyTrain in seq_search_trains:
+            reply = reply + tool.correctClass(everyTrain['train_class']).encode('utf8')
+            reply = reply + str(everyTrain['train_num0'])
+            if everyTrain['train_num0'] != everyTrain['train_num1']:
+                train_number_string_0 = str(everyTrain['train_num0'])
+                train_number_string_1 = str(everyTrain['train_num1'])
                 reply = reply + '/'
-                if len(tnStr0) == len(tnStr1):
-                    for loca in range(len(tnStr0)):
-                        if tnStr1[loca] != tnStr0[loca]:
-                            reply = reply + tnStr1[loca]
+                if len(train_number_string_0) == len(train_number_string_1):
+                    for location in range(len(train_number_string_0)):
+                        if train_number_string_1[location] != train_number_string_0[location]:
+                            reply = reply + train_number_string_1[location]
                 else:
-                    reply = reply + tnStr1
+                    reply = reply + train_number_string_1
             reply = reply + '-'
 
         return reply[0:-1]
 
-    def arrs(self, trainNum, trainClass):
+    def arrs(self, train_num, train_class):
         """Get all the arrivals of a train.
-           Parameter trainNum and trainClass must be provided.
-           TrainNum can be in any(string/integer) format.
+           Parameter train_num and train_class must be provided.
+           train_num can be in any(string/integer) format.
            Return value(Reply) is in Chn format.
         """
         # Initialize the train/arrival/station table object.
-        trainDB = train.table()
-        arrivalDB = arrival.table()
-        stationDB = staInfo.table()
+        train_db = train.table()
+        arrival_db = arrival.table()
+        station_db = staInfo.table()
         # Search for train data.
-        trainStatus, trainInfo = trainDB.searchDual(trainClass, int(trainNum))
-        if not trainStatus:
-            print 'hlseach.py: Warning: This train does not exist.'
+        train_status, train_info = train_db.searchDual(train_class, int(train_num))
+        if not train_status:
+            print('hlseach.py: Warning: This train does not exist.')
             return chnword.trainDoNotExist.decode('hex')
-        reply = chnword.trainNo.decode('hex') + ':' + trainClass + str(trainNum) +'\n'
+        reply = chnword.trainNo.decode('hex') + ':' + train_class + str(train_num) + '\n'
         # Search for all the arrivals.
-        arrStatus, arrInfo = arrivalDB.search(trainInfo[0]['trainStr'])
-        if not arrStatus:
+        train_status, arr_info = arrival_db.search(train_info[0]['trainStr'])
+        if not train_status:
             return chnword.trainExistsButNoArrival.decode('hex')
-        del arrStatus
+        del train_status
         # Format them.
-        for everyArr in arrInfo:
-            stationStatus, stationInfo = stationDB.search('staTele', everyArr['staTele'])
-            reply = reply + stationInfo[0]['staCn'].decode('hex') + (8-len(stationInfo[0]['staCn'])/3)*' '
+        for everyArr in arr_info:
+            station_status, station_info = station_db.search('staTele', everyArr['staTele'])
+            reply = reply + station_info[0]['staCn'].decode('hex') + (8-len(station_info[0]['staCn'])/3)*' '
             if everyArr['arrTime'] == 1441:
                 reply = reply + '-----' + ' '
             else:
@@ -119,50 +120,52 @@ class hls(object):
                 reply = reply + '-----' + '\n'
             else:
                 reply = reply + tool.int2str(everyArr['depTime']) + '\n'
-        del stationStatus
+        del station_status
 
         return reply[0:-1]
 
-    def dbs(self, staPy):
+    def dbs(self, sta_pinyin):
         """Search for the telecode of a station.
-           Parameter staPy is the first character of the station's pinyin.
+           Parameter sta_pinyin is the first character of the station's pinyin.
         """
-        stationDB = staInfo.table()
-        stationStatus, stationInfo = stationDB.search('staPy', staPy.lower())
-        if not stationStatus:
-            print 'hlseach.py: Warning: This station does not exist.'
+        station_db = staInfo.table()
+        station_status, station_info = station_db.search('sta_pinyin', sta_pinyin.lower())
+        if not station_status:
+            print('hlseach.py: Warning: This station does not exist.')
             return chnword.stationDoNotExist.decode('hex')
         reply = ''
-        for everySta in stationInfo:
+        for everySta in station_info:
             reply = reply + chnword.telecode.decode('hex') + ':' + everySta['staTele'].encode('utf8') + ' '
             reply = reply + chnword.station.decode('hex') + ':' + everySta['staCn'].decode('hex') + '\n'
 
         return reply[0:-1]
 
-    def pss(self, EMUNo):
+    def pss(self, emu_no):
         """Search for the infomation of a EMU train.
            Not avilable yet now.
         """
-        print tool.processEmuno(str(EMUNo))
-        return tool.processEmuno(str(EMUNo))
+        print(tool.processEmuno(str(emu_no)))
+        return tool.processEmuno(str(emu_no))
+
 
 def test():
     import sys
-    testObj = hls()
+    test_object = Hls()
     if sys.argv > 1:
-        actionName = sys.argv[1]
-        actionParameter = sys.argv[2]
-        if actionName == 'seq' or actionName == 's':
-            # No need to transfer trainNum into integer format.
-            print testObj.seqs(actionParameter[1:], actionParameter[0])
-        elif actionName == 'arr' or actionName == 'a':
-            print testObj.arrs(actionParameter[1:], actionParameter[0])
-        elif actionName == 'dbs' or actionName == 'd':
-            print testObj.dbs(actionParameter)
+        action_name = sys.argv[1]
+        action_parameter = sys.argv[2]
+        if action_name == 'seq' or action_name == 's':
+            # No need to transfer train_num into integer format.
+            print(test_object.seqs(action_parameter[1:], action_parameter[0]))
+        elif action_name == 'arr' or action_name == 'a':
+            print(test_object.arrs(action_parameter[1:], action_parameter[0]))
+        elif action_name == 'dbs' or action_name == 'd':
+            print(test_object.dbs(action_parameter))
         else:
-            print 'hlsearch.py: Info: Test ended because of wrong parameter.'
+            print('hlsearch.py: Info: Test ended because of wrong parameter.')
     else:
-        print 'hlsearch.py: Info: Test ended with nothing happened.'
+        print('hlsearch.py: Info: Test ended with nothing happened.')
+
 
 if __name__ == "__main__":
     test()
