@@ -1,328 +1,332 @@
-#----------------------------------------------------------------#
 # Module Name: Dbmaria2 #
 # Function: Interface to mariadb, the 2nd version. #
-# Author: Kumo #
-# Last Edit: Dec/14/2018 #
-#----------------------------------------------------------------#
+# Author: Kumo(https://github.com/Kumo-YZX) #
+# Last Edit: Jan/22/2019 #
 
-def loadModule(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('dbconfig', 'dbconfig.py')
+
+load_module('dbconfig', 'dbconfig.py')
 
 import pymysql.cursors
 import pymysql
-import json
 import dbconfig
 
 # If variable debug is set true, prompt message will be printed.
 debug = 0
 
-class dbBase(object):
 
-    def __init__(self, tableName):
+class DbBase(object):
+
+    def __init__(self, table_name):
+        """initialization function
         """
-        """
-        self.tableName = tableName
+        self.table_name = table_name
+        self.middleCode = ''
         self.dbConnection = pymysql.connect(
-                                            host = dbconfig.host,
-                                            port = dbconfig.port,
-                                            user = dbconfig.user,
-                                            password = dbconfig.password,
-                                            db = dbconfig.db,
-                                            charset = 'utf8mb4',
-                                            cursorclass = pymysql.cursors.DictCursor
+                                            host=dbconfig.host,
+                                            port=dbconfig.port,
+                                            user=dbconfig.user,
+                                            password=dbconfig.password,
+                                            db=dbconfig.db,
+                                            charset='utf8mb4',
+                                            cursorclass=pymysql.cursors.DictCursor
         )
-        print "Welcome to dbmaria2 world"
+        print("Welcome to dbmaria2 world")
 
-    def formCondition(self, conditionList, OASequence=0, orderFactor=None, amountLimit=None):
+    def from_condition(self, condition_list, oa_sequence=0, order_factor=None, amount_limit=None):
         """To form a query code with conditions provided.
-           conditionList must not be None, at least '[]' should be proven.
+           condition_list must not be None, at least '[]' should be proven.
         """
-        if OASequence:
-            firstRelationship = ' OR '
-            secondRelationship = ' AND '
+        if oa_sequence:
+            first_relationship = ' OR '
+            second_relationship = ' AND '
         else:
-            firstRelationship = ' AND '
-            secondRelationship = ' OR '
+            first_relationship = ' AND '
+            second_relationship = ' OR '
 
         self.middleCode = ''
-        if len(conditionList):
+        if len(condition_list):
             self.middleCode = ' WHERE '
-            #cyc1
-            for productIndex in range(len(conditionList)):
+            # cyc1
+            for productIndex in range(len(condition_list)):
                 self.middleCode = self.middleCode + '('
-                #cyc2
-                for everyKey in list(conditionList[productIndex].keys()):
-                    if isinstance(conditionList[productIndex][everyKey], dict):
-                        if conditionList[productIndex][everyKey]['judge'] == "between":
+                # cyc2
+                for everyKey in list(condition_list[productIndex].keys()):
+                    if isinstance(condition_list[productIndex][everyKey], dict):
+                        if condition_list[productIndex][everyKey]['judge'] == "between":
                             self.middleCode = self.middleCode + '(' + everyKey + ' between ' +\
-                                str(conditionList[productIndex][everyKey]['start']) +\
-                                ' AND ' + str(conditionList[productIndex][everyKey]['end']) + ')'
+                                str(condition_list[productIndex][everyKey]['start']) +\
+                                ' AND ' + str(condition_list[productIndex][everyKey]['end']) + ')'
                         else:
-                            self.middleCode = self.middleCode + everyKey + conditionList[productIndex][everyKey]['judge']
-                            if isinstance(conditionList[productIndex][everyKey]['value'], basestring):
-                                self.middleCode = self.middleCode + '\'' + conditionList[productIndex][everyKey]['value'] + '\''
+                            self.middleCode = self.middleCode + everyKey +\
+                                              condition_list[productIndex][everyKey]['judge']
+                            if isinstance(condition_list[productIndex][everyKey]['value'], basestring):
+                                self.middleCode = self.middleCode + '\'' +\
+                                                  condition_list[productIndex][everyKey]['value'] + '\''
                             else:
-                                self.middleCode = self.middleCode + str(conditionList[productIndex][everyKey]['value'])
+                                self.middleCode = self.middleCode +\
+                                                  str(condition_list[productIndex][everyKey]['value'])
                     else:
                         self.middleCode = self.middleCode + everyKey + '='
-                        if isinstance(conditionList[productIndex][everyKey], basestring):
-                            self.middleCode = self.middleCode + '\'' +conditionList[productIndex][everyKey] + '\''
+                        if isinstance(condition_list[productIndex][everyKey], basestring):
+                            self.middleCode = self.middleCode + '\'' + condition_list[productIndex][everyKey] + '\''
                         else:
-                            self.middleCode = self.middleCode + str(conditionList[productIndex][everyKey])
-                    self.middleCode = self.middleCode + firstRelationship
-                self.middleCode = self.middleCode[0:-(len(firstRelationship))] + ')'
-                if productIndex != len(conditionList)-1:
-                    self.middleCode = self.middleCode + secondRelationship
+                            self.middleCode = self.middleCode + str(condition_list[productIndex][everyKey])
+                    self.middleCode = self.middleCode + first_relationship
+                self.middleCode = self.middleCode[0:-(len(first_relationship))] + ')'
+                if productIndex != len(condition_list)-1:
+                    self.middleCode = self.middleCode + second_relationship
 
-        if isinstance(orderFactor, dict):
-            varName = (orderFactor.keys())[0]
-            if orderFactor[varName] == 'DESC':
-                self.middleCode = self.middleCode + ' ORDER BY ' + varName + ' DESC '
+        if isinstance(order_factor, dict):
+            var_name = (order_factor.keys())[0]
+            if order_factor[var_name] == 'DESC':
+                self.middleCode = self.middleCode + ' ORDER BY ' + var_name + ' DESC '
             else:
-                self.middleCode = self.middleCode + ' ORDER BY ' + varName
+                self.middleCode = self.middleCode + ' ORDER BY ' + var_name
         
-        if isinstance(amountLimit, int):
-            self.middleCode = self.middleCode + ' LIMIT ' + str(amountLimit)
+        if isinstance(amount_limit, int):
+            self.middleCode = self.middleCode + ' LIMIT ' + str(amount_limit)
 
         # if debug:
         #     print self.middleCode
 
-    def queryData(self, conditionList, columnList=None, OASequence=0, orderFactor=None, amountLimit=None):
-        """Query data formatted in columnList with conditionList amd OASequence.
-           columnList must be in V/D format, with conditionList in CD format.
-           OASequence, orderFactor, amountLimit must be boolean, dict, integer values.
+    def query_data(self, condition_list, column_list=None, oa_sequence=0, order_factor=None, amount_limit=None):
+        """Query data formatted in column_list with condition_list amd oa_sequence.
+           column_list must be in V/D format, with condition_list in CD format.
+           oa_sequence, order_factor, amount_limit must be boolean, dict, integer values.
         """
-        firstCode = 'SELECT '
-        if isinstance(columnList, list):
-            for everyColumn in columnList:
+        first_code = 'SELECT '
+        if isinstance(column_list, list):
+            for everyColumn in column_list:
                 if isinstance(everyColumn, dict):
-                    originalName = (everyColumn.keys())[0]
-                    newName = everyColumn[originalName]
-                    firstCode = firstCode + ' ' + originalName + ' ' + newName + ','
+                    original_name = (everyColumn.keys())[0]
+                    new_name = everyColumn[original_name]
+                    first_code = first_code + ' ' + original_name + ' ' + new_name + ','
                 else:
-                    firstCode = firstCode + ' ' + str(everyColumn) + ','
+                    first_code = first_code + ' ' + str(everyColumn) + ','
         else:
-            firstCode = firstCode + ' *  '
+            first_code = first_code + ' *  '
 
-        firstCode = firstCode[0:-1] + ' FROM ' + self.tableName
+        first_code = first_code[0:-1] + ' FROM ' + self.table_name
 
-        self.formCondition(conditionList, OASequence, orderFactor, amountLimit)
+        self.from_condition(condition_list, oa_sequence, order_factor, amount_limit)
 
-        sqlCode = firstCode + self.middleCode
+        sql_code = first_code + self.middleCode
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
             result = cursor.fetchall()
 
         if debug:
-            print 'Info: query data from ' + self.tableName + ' completed'
+            print('Info: query data from ' + self.table_name + ' completed')
 
         return result
 
-    def deleteData(self, conditionList, OASequence=0):
-        firstCode = 'DELETE FROM ' + self.tableName
+    def delete_data(self, condition_list, oa_sequence=0):
+        first_code = 'DELETE FROM ' + self.table_name
 
-        self.formCondition(conditionList, OASequence)
+        self.from_condition(condition_list, oa_sequence)
 
-        sqlCode = firstCode + self.middleCode
+        sql_code = first_code + self.middleCode
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
         self.dbConnection.commit()
 
         if debug:
-            print 'Info: delete data from ' + self.tableName + ' completed'
+            print('Info: delete data from ' + self.table_name + ' completed')
 
-    def verifyExistence(self, conditionList, OASequence=0):
-        firstCode = 'SELECT COUNT(1) FROM ' + self.tableName
+    def verify_existence(self, condition_list, oa_sequence=0):
+        first_code = 'SELECT COUNT(1) FROM ' + self.table_name
 
-        self.formCondition(conditionList, OASequence)
+        self.from_condition(condition_list, oa_sequence)
 
-        sqlCode = firstCode + self.middleCode
+        sql_code = first_code + self.middleCode
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
             result = cursor.fetchall()
 
         if debug:
-            print 'Info: verify data from ' + self.tableName + ' completed'
+            print('Info: verify data from ' + self.table_name + ' completed')
 
         return result
 
-    def queryRandom(self, conditionList, OASequence=0, amount=1):
-        firstCode = 'SELECT * FROM ' + self.tableName 
+    def query_random(self, condition_list, oa_sequence=0, amount=1):
+        first_code = 'SELECT * FROM ' + self.table_name 
 
-        self.formCondition(conditionList, OASequence, orderFactor={"RAND()":""}, amountLimit=amount)
+        self.from_condition(condition_list, oa_sequence, order_factor={"RAND()":""}, amount_limit=amount)
 
-        sqlCode = firstCode + self.middleCode
+        sql_code = first_code + self.middleCode
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
             result = cursor.fetchall()
 
         if debug:
-            print 'Info: query ranfom data from ' + self.tableName + ' completed'
+            print('Info: query random data from ' + self.table_name + ' completed')
 
         return result
 
-    def updateData(self, columnDict, conditionList, OASequence=0):
-        """Update a item by values in columnDict. 
-           Keys of columnDict are name of columns and values are new value.
-           The conditionList and OASequence decides the 
+    def update_data(self, column_dict, condition_list, oa_sequence=0):
+        """Update a item by values in column_dict. 
+           Keys of column_dict are name of columns and values are new value.
+           The condition_list and oa_sequence decides the 
         """
-        firstCode = 'UPDATE ' + self.tableName
-        firstCode = firstCode + ' SET '
+        first_code = 'UPDATE ' + self.table_name
+        first_code = first_code + ' SET '
 
-        for everyColumn in columnDict.keys():
-            if isinstance(columnDict[everyColumn], basestring):
-                firstCode = firstCode + everyColumn + ' = \'' + columnDict[everyColumn] + '\', '
+        for everyColumn in column_dict.keys():
+            if isinstance(column_dict[everyColumn], basestring):
+                first_code = first_code + everyColumn + ' = \'' + column_dict[everyColumn] + '\', '
             else:
-                firstCode = firstCode + everyColumn + ' = ' + str(columnDict[everyColumn]) + ', '
+                first_code = first_code + everyColumn + ' = ' + str(column_dict[everyColumn]) + ', '
 
-        firstCode = firstCode[0:-2]
+        first_code = first_code[0:-2]
 
-        self.formCondition(conditionList, OASequence)
+        self.from_condition(condition_list, oa_sequence)
 
-        sqlCode = firstCode + self.middleCode
+        sql_code = first_code + self.middleCode
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
         self.dbConnection.commit()
 
         if debug:
-            print 'Info: update data in ' + self.tableName + ' completed'
+            print('Info: update data in ' + self.table_name + ' completed')
 
-    def queryIntersect(self, conditionDict1, conditionDict2, columnList=None):
-        firstCode = 'SELECT'
-        if columnList is not None:
-            for everyColumn in columnList:
-                firstCode = firstCode + ' '  + everyColumn + ','
+    def query_intersect(self, condition_dict_1, condition_dict_2, column_list=None):
+        first_code = 'SELECT'
+        if column_list is not None:
+            for everyColumn in column_list:
+                first_code = first_code + ' ' + everyColumn + ','
         else:
-            firstCode = firstCode + ' * '
+            first_code = first_code + ' * '
 
-        firstCode = firstCode[0:-1] + ' FROM ' + self.tableName
+        first_code = first_code[0:-1] + ' FROM ' + self.table_name
 
-        key1 = (conditionDict1.keys())[0]
-        value1 = conditionDict1[key1]
-        key2 = (conditionDict2.keys())[0]
-        value2 = conditionDict2[key2]
+        key1 = (condition_dict_1.keys())[0]
+        value1 = condition_dict_1[key1]
+        key2 = (condition_dict_2.keys())[0]
+        value2 = condition_dict_2[key2]
 
-        sqlCode = '(' + firstCode + ' WHERE ' + key1 + ' = \'' + value1 + '\')' +\
+        sql_code = '(' + first_code + ' WHERE ' + key1 + ' = \'' + value1 + '\')' +\
                   ' INTERSECT ' +\
-                  '(' + firstCode + ' WHERE ' + key2 + ' = \'' + value2 + '\');'
+                  '(' + first_code + ' WHERE ' + key2 + ' = \'' + value2 + '\');'
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
             result = cursor.fetchall()
 
         if debug:
-            print 'Info: query data with intersected condition from ' + self.tableName + ' completed'
+            print('Info: query data with intersected condition from ' + self.table_name + ' completed')
 
         return result
 
-    def queryJoin(self):
-        sqlCode = 'SELECT a.trainStr, s.seleSta, count(*) arrCount FROM arrival a ' +\
+    def query_join(self):
+        sql_code = 'SELECT a.trainStr, s.seleSta, count(*) arrCount FROM arrival a ' +\
                   'INNER JOIN staInfo s WHERE a.staTele = s.staTele AND s.seleSta = 1 ' +\
                   'GROUP BY a.trainStr HAVING arrCount > 1 ORDER BY arrCount DESC;'
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
             result = cursor.fetchall()
 
         if debug:
-            print 'Info: query data with joined condition from ' + self.tableName + ' completed'
+            print('Info: query data with joined condition from ' + self.table_name + ' completed')
 
         return result
 
-
-    def createTable(self, parameterList):
-        firstCode = 'CREATE TABLE IF NOT EXISTS ' + self.tableName + '('
-        sqlCode = ''
-        lastCode = ''
-        for everyVar in parameterList:
+    def create_table(self, parameter_list):
+        first_code = 'CREATE TABLE IF NOT EXISTS ' + self.table_name + '('
+        sql_code = ''
+        last_code = ''
+        for everyVar in parameter_list:
             if "primary" in everyVar:
                 if "auto_inc" in everyVar:
-                    sqlCode = everyVar['varName'] + ' ' + everyVar['varType'] + ' AUTO_INCREMENT PRIMARY KEY,' + sqlCode
+                    sql_code = everyVar['var_name'] + ' ' + everyVar['varType'] +\
+                               ' AUTO_INCREMENT PRIMARY KEY,' + sql_code
                 else:
-                    sqlCode = everyVar['varName'] + ' ' + everyVar['varType'] + ' PRIMARY KEY,' + sqlCode
+                    sql_code = everyVar['var_name'] + ' ' + everyVar['varType'] + ' PRIMARY KEY,' + sql_code
             else:
-                sqlCode = sqlCode + everyVar['varName'] + ' ' + everyVar['varType'] + ','
+                sql_code = sql_code + everyVar['var_name'] + ' ' + everyVar['varType'] + ','
 
             if "foreign" in everyVar:
-                lastCode = lastCode + 'FOREIGN KEY (' + everyVar['varName'] + ') REFERENCES ' + everyVar['foreign']['table'] + '(' + everyVar['foreign']['var'] + '),'
+                last_code = last_code + 'FOREIGN KEY (' + everyVar['var_name'] + ') REFERENCES ' +\
+                            everyVar['foreign']['table'] + '(' + everyVar['foreign']['var'] + '),'
         
-        if len(lastCode):
-            sqlCode = firstCode + sqlCode + lastCode[0:-1] + ');'
+        if len(last_code):
+            sql_code = first_code + sql_code + last_code[0:-1] + ');'
         else:
-            sqlCode = firstCode + sqlCode[0:-1] + ');'
+            sql_code = first_code + sql_code[0:-1] + ');'
 
-        del firstCode
-        del lastCode
-
-        if debug:
-            print sqlCode
-
-        with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
-        self.dbConnection.commit()
-
-        print 'Info: create table ' + self.tableName + ' completed'
-
-    def deleteTable(self):
-        sqlCode = 'DROP TABLE ' + self.tableName + ';'
+        del first_code
+        del last_code
 
         if debug:
-            print sqlCode
+            print(sql_code)
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
         self.dbConnection.commit()
 
-        print 'Info: delete table ' + self.tableName + ' completed'
+        print('Info: create table ' + self.table_name + ' completed')
 
-    def insertData(self, dataDict):
-        firstCode = 'INSERT INTO ' + self.tableName + ' ('
-        lastCode = ') VALUES ('
-        for everyKey in list(dataDict.keys()):
-            firstCode = firstCode + everyKey + ','
-            if isinstance(dataDict[everyKey], basestring):
-                lastCode = lastCode + '\'' + dataDict[everyKey] + '\','
+    def delete_table(self):
+        sql_code = 'DROP TABLE ' + self.table_name + ';'
+
+        if debug:
+            print(sql_code)
+
+        with self.dbConnection.cursor() as cursor:
+            cursor.execute(sql_code)
+        self.dbConnection.commit()
+
+        print('Info: delete table ' + self.table_name + ' completed')
+
+    def insert_data(self, data_dict):
+        first_code = 'INSERT INTO ' + self.table_name + ' ('
+        last_code = ') VALUES ('
+        for everyKey in list(data_dict.keys()):
+            first_code = first_code + everyKey + ','
+            if isinstance(data_dict[everyKey], basestring):
+                last_code = last_code + '\'' + data_dict[everyKey] + '\','
             else:
-                lastCode = lastCode + str(dataDict[everyKey]) + ','
-        sqlCode = firstCode[0:-1] + lastCode[0:-1] + ');'
+                last_code = last_code + str(data_dict[everyKey]) + ','
+        sql_code = first_code[0:-1] + last_code[0:-1] + ');'
 
-        del firstCode
-        del lastCode
+        del first_code
+        del last_code
 
         with self.dbConnection.cursor() as cursor:
-            cursor.execute(sqlCode)
+            cursor.execute(sql_code)
         self.dbConnection.commit()
 
         if debug:
-            print sqlCode
-            print 'Info: insert data to ' + self.tableName + ' completed'
-
+            print(sql_code)
+            print('Info: insert data to ' + self.table_name + ' completed')
