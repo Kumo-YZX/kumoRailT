@@ -1,5 +1,5 @@
-[{"varName":"staTele", "varType":"VARCHAR(3)", "primary":true},
- {"varName":"staCn", "varType":"VARCHAR(36)"},
- {"varName":"staPy", "varType":"VARCHAR(6)"},
- {"varName":"staNum", "varType":"SMALLINT UNSIGNED"},
- {"varName":"seleSta", "varType":"BOOLEAN"}]
+[{"var_name":"sta_tele", "var_type":"VARCHAR(3)", "primary":true},
+ {"var_name":"sta_cn", "var_type":"VARCHAR(36)"},
+ {"var_name":"sta_py", "var_type":"VARCHAR(6)"},
+ {"var_name":"sta_num", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"sele_sta", "var_type":"BOOLEAN"}]
