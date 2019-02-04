@@ -16,7 +16,7 @@ import pymysql
 import dbconfig
 
 # If variable debug is set true, prompt message will be printed.
-debug = 0
+debug = 1
 
 
 class DbBase(object):
@@ -35,7 +35,7 @@ class DbBase(object):
                                             charset='utf8mb4',
                                             cursorclass=pymysql.cursors.DictCursor
         )
-        print("Welcome to dbmaria2 world")
+        # print("Welcome to dbmaria2 world")
 
     def from_condition(self, condition_list, oa_sequence=0, order_factor=None, amount_limit=None):
         """To form a query code with conditions provided.
@@ -125,7 +125,7 @@ class DbBase(object):
             result = cursor.fetchall()
 
         if debug:
-            print('Info: query data from ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: query data from ' + self.table_name + ' completed')
 
         return result
 
@@ -144,7 +144,7 @@ class DbBase(object):
         self.dbConnection.commit()
 
         if debug:
-            print('Info: delete data from ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: delete data from ' + self.table_name + ' completed')
 
     def verify_existence(self, condition_list, oa_sequence=0):
         first_code = 'SELECT COUNT(1) FROM ' + self.table_name
@@ -161,14 +161,14 @@ class DbBase(object):
             result = cursor.fetchall()
 
         if debug:
-            print('Info: verify data from ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: verify data from ' + self.table_name + ' completed')
 
         return result
 
     def query_random(self, condition_list, oa_sequence=0, amount=1):
         first_code = 'SELECT * FROM ' + self.table_name 
 
-        self.from_condition(condition_list, oa_sequence, order_factor={"RAND()":""}, amount_limit=amount)
+        self.from_condition(condition_list, oa_sequence, order_factor={"RAND()": ""}, amount_limit=amount)
 
         sql_code = first_code + self.middleCode
 
@@ -180,7 +180,7 @@ class DbBase(object):
             result = cursor.fetchall()
 
         if debug:
-            print('Info: query random data from ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: query random data from ' + self.table_name + ' completed')
 
         return result
 
@@ -212,7 +212,7 @@ class DbBase(object):
         self.dbConnection.commit()
 
         if debug:
-            print('Info: update data in ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: update data in ' + self.table_name + ' completed')
 
     def query_intersect(self, condition_dict_1, condition_dict_2, column_list=None):
         first_code = 'SELECT'
@@ -230,8 +230,8 @@ class DbBase(object):
         value2 = condition_dict_2[key2]
 
         sql_code = '(' + first_code + ' WHERE ' + key1 + ' = \'' + value1 + '\')' +\
-                  ' INTERSECT ' +\
-                  '(' + first_code + ' WHERE ' + key2 + ' = \'' + value2 + '\');'
+                   ' INTERSECT ' +\
+                   '(' + first_code + ' WHERE ' + key2 + ' = \'' + value2 + '\');'
 
         if debug:
             print(sql_code)
@@ -241,14 +241,15 @@ class DbBase(object):
             result = cursor.fetchall()
 
         if debug:
-            print('Info: query data with intersected condition from ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: query data with intersected condition from ' +
+                  self.table_name + ' completed')
 
         return result
 
     def query_join(self):
-        sql_code = 'SELECT a.trainStr, s.seleSta, count(*) arrCount FROM arrival a ' +\
-                  'INNER JOIN staInfo s WHERE a.staTele = s.staTele AND s.seleSta = 1 ' +\
-                  'GROUP BY a.trainStr HAVING arrCount > 1 ORDER BY arrCount DESC;'
+        sql_code = 'SELECT a.train_str, s.sele_sta, count(*) arr_count FROM arrival a ' +\
+                   'INNER JOIN sta_info s WHERE a.sta_tele = s.sta_tele AND s.sele_sta = 1 ' +\
+                   'GROUP BY a.train_str HAVING arr_count > 1 ORDER BY arr_count DESC;'
 
         if debug:
             print(sql_code)
@@ -258,7 +259,8 @@ class DbBase(object):
             result = cursor.fetchall()
 
         if debug:
-            print('Info: query data with joined condition from ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: query data with joined condition from ' +
+                  self.table_name + ' completed')
 
         return result
 
@@ -269,12 +271,12 @@ class DbBase(object):
         for everyVar in parameter_list:
             if "primary" in everyVar:
                 if "auto_inc" in everyVar:
-                    sql_code = everyVar['var_name'] + ' ' + everyVar['varType'] +\
+                    sql_code = everyVar['var_name'] + ' ' + everyVar['var_type'] +\
                                ' AUTO_INCREMENT PRIMARY KEY,' + sql_code
                 else:
-                    sql_code = everyVar['var_name'] + ' ' + everyVar['varType'] + ' PRIMARY KEY,' + sql_code
+                    sql_code = everyVar['var_name'] + ' ' + everyVar['var_type'] + ' PRIMARY KEY,' + sql_code
             else:
-                sql_code = sql_code + everyVar['var_name'] + ' ' + everyVar['varType'] + ','
+                sql_code = sql_code + everyVar['var_name'] + ' ' + everyVar['var_type'] + ','
 
             if "foreign" in everyVar:
                 last_code = last_code + 'FOREIGN KEY (' + everyVar['var_name'] + ') REFERENCES ' +\
@@ -295,7 +297,7 @@ class DbBase(object):
             cursor.execute(sql_code)
         self.dbConnection.commit()
 
-        print('Info: create table ' + self.table_name + ' completed')
+        print('dbmaria/dbmaria2.py: Info: create table ' + self.table_name + ' completed')
 
     def delete_table(self):
         sql_code = 'DROP TABLE ' + self.table_name + ';'
@@ -307,7 +309,7 @@ class DbBase(object):
             cursor.execute(sql_code)
         self.dbConnection.commit()
 
-        print('Info: delete table ' + self.table_name + ' completed')
+        print('dbmaria/dbmaria2.py: Info: delete table ' + self.table_name + ' completed')
 
     def insert_data(self, data_dict):
         first_code = 'INSERT INTO ' + self.table_name + ' ('
@@ -323,10 +325,12 @@ class DbBase(object):
         del first_code
         del last_code
 
+        if debug:
+            print(sql_code)
+
         with self.dbConnection.cursor() as cursor:
             cursor.execute(sql_code)
         self.dbConnection.commit()
 
         if debug:
-            print(sql_code)
-            print('Info: insert data to ' + self.table_name + ' completed')
+            print('dbmaria/dbmaria2.py: Info: insert data to ' + self.table_name + ' completed')
