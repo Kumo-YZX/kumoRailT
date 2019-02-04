@@ -1,5 +1,5 @@
-[{"varName":"seqId", "varType":"SMALLINT UNSIGNED", "primary":true},
- {"varName":"staff", "varType":"SMALLINT UNSIGNED"},
- {"varName":"depot", "varType":"SMALLINT UNSIGNED"},
- {"varName":"emuType", "varType":"VARCHAR(128)"},
- {"varName":"remark", "varType":"VARCHAR(256)"}]
+[{"var_name":"seq_id", "var_type":"SMALLINT UNSIGNED", "primary":true},
+ {"var_name":"staff", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"depot", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"emu_type", "var_type":"VARCHAR(128)"},
+ {"var_name":"remark", "var_type":"VARCHAR(256)"}]

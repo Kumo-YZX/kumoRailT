@@ -1,2 +1,2 @@
-[{"varName":"depotId", "varType":"TINYINT UNSIGNED"},
- {"varName":"depotCn", "varType":"VARCHAR(36)"}]
+[{"var_name":"depot_id", "var_type":"TINYINT UNSIGNED"},
+ {"var_name":"depot_cn", "var_type":"VARCHAR(36)"}]
