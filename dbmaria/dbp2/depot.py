@@ -1,74 +1,78 @@
-#----------------------------------------------------------------#
+##
 # Module Name: Depot #
 # Function: Define command to control items in DEPOT table. #
-# Author: Kumo #
-# Last Edit: Dec/13/2018 #
-#----------------------------------------------------------------#
+# Author: Kumo(https://github.com/Kumo-YZX) #
+# Last Edit: Feb/04/2019 #
 
-def loadModule(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('dbmaria', '../dbmaria2.py')
 
-from dbmaria import dbBase
+load_module('dbmaria', '../dbmaria2.py')
+
+from dbmaria import DbBase
 import json
 
-class table(dbBase):
+
+class Table(DbBase):
 
     def __init__(self):
-        dbBase.__init__(self, 'depot')
+        DbBase.__init__(self, 'depot')
 
-    def create(self, definitionFile='depot_definition.json'):
-        with open(definitionFile) as fi:
-            self.createTable(json.load(fi))
+    def create(self, definition_file='depot_definition.json'):
+        with open(definition_file) as fi:
+            self.create_table(json.load(fi))
 
-    def insert(self, depotId, depotCn):
+    def insert(self, depot_id, depot_cn):
         """Insert item to the table.
-           Parameter depotId is self-defined but less than 9999.
-           Parameter depotCn must be in Han(Direct hanzi) format.
+           Parameter depot_id is self-defined but less than 9999.
+           Parameter depot_cn must be in Han(Direct hanzi) format.
         """
-        self.insertData({'depotId':depotId, 'depotCn':depotCn.encode('hex')})
+        self.insert_data({'depot_id': depot_id, 'depot_cn': depot_cn.encode('hex')})
 
-    def insertDict(self, parameterDict):
+    def insert_dict(self, parameter_dict):
         """Insert to table with parameter in json format.
         """
-        self.insertData(parameterDict)
+        self.insert_data(parameter_dict)
 
-    def search(self, depotId=0):
+    def search(self, depot_id=0):
         """Search for item in this table.
            Parameters are not essential.
            If provided, designed item will be returned, else it will return all items.
            Results is formatted in existence-result format with raw items.
         """
-        if depotId:
-            res = self.queryData([{'depotId':depotId}])
+        if depot_id:
+            res = self.query_data([{'depot_id': depot_id}])
         else:
-            res = self.queryData([])
+            res = self.query_data([])
         return len(res), res
 
-    def delete(self, depotId=0):
+    def delete(self, depot_id=0):
         """Delete data.
-           Parameter depotId are not essential.
+           Parameter depot_id are not essential.
            If provided, designated item will be deleted.
            If not provided, all items will be deleted.
         """
-        if depotId:
-            self.deleteData([{'depotId':depotId}])
+        if depot_id:
+            self.delete_data([{'depot_id': depot_id}])
         else:
-            self.deleteData([])
+            self.delete_data([])
+
 
 def test():
-    obj = table()
+    obj = Table()
     obj.create()
     while(1):
-        depotId = raw_input('depotId:')
-        if int(depotId) == 9999:
+        depot_id = raw_input('depot_id:')
+        if int(depot_id) == 9999:
             break
-        depotCn = raw_input('depotCn:')
-        obj.insert(int(depotId), depotCn)
-    print 'INSERT DEPOT DONE'
+        depot_cn = raw_input('depot_cn:')
+        obj.insert(int(depot_id), depot_cn)
+    print 'dbmaria/dbp2/depot.py: Info: Add depot data completed.'
 
-if __name__ =='__main__':
+
+if __name__ == '__main__':
     test()
 
