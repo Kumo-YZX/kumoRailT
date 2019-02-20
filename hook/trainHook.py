@@ -1,17 +1,15 @@
-#----------------------------------------------------------------#
 # Module Name: TrainHook #
-# Funtion: Import train&trainCode data from local file. #
-# Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Dec/28/2018 #
-#----------------------------------------------------------------#
+# Function: Import train&trainCode data from local file. #
+# Author: Kumo Lam(https://github.com/Kumo-YZX) #
+# Last Edit: Feb/20/2019 #
 
-def loadModule(name, path):
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('train', '../dbmaria/dbp3/train.py')
-loadModule('trainCode', '../dbmaria/dbp3/trainCode.py')
-loadModule('proxy', '../dbmaria/dbproxy/proxy.py')
+load_module('train', '../dbmaria/dbp3/train.py')
+load_module('trainCode', '../dbmaria/dbp3/trainCode.py')
+load_module('proxy', '../dbmaria/dbproxy/proxy.py')
 
 import train 
 import trainCode
@@ -22,154 +20,156 @@ normalClass = ['G', 'D', 'C', 'Z', 'T', 'K']
 specialClass = ['Y', 'P', 'S']
 ipVerify = 1
 trainVer = 1
-header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +\
+         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
          "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
 
-class trainWebHook(object):
+class TrainWebHook(object):
 
     def __init__(self):
         self.apiAddress='https://search.12306.cn/search/v1/train/search?keyword={}&date={}'
-        self.proxyDb = proxy.table()
-        self.trainDb = train.table()
-        self.codeDb = trainCode.table()
-        print 'trainHook.py: Info: trainWebHook Init done'
+        self.proxyDb = proxy.Table()
+        self.trainDb = train.Table()
+        self.codeDb = trainCode.Table()
+        self.this_class_fail = []
+        print 'trainHook.py: Info: TrainWebHook Init done'
 
-    def catchNormal(self, dateStr):
+    def catch_normal(self, date_str):
         """Catch all trainNums in normal class.
-           Parameter dateStr must be in YYYYMMDD format.
+           Parameter date_str must be in YYYYMMDD format.
         """
         for everyClass in normalClass:
-            self.thisClassFailList = []
+            self.this_class_fail = []
             # Verify numbers less than 1000
             for singleBit in range(1,10):
                 # Send request and get reply using proxy
-                self.reqRep(everyClass + str(singleBit), dateStr, 1)
+                self.req_rep(everyClass + str(singleBit), date_str, 1)
                 print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(everyClass + str(singleBit))
                 time.sleep(4)
             print 'trainHook.py: Info: Verify trainNums that less than 1k ends.'
             # Verify numbers more than 1000
             for multiBit in range(10, 100):
                 # Send request and get reply using proxy.
-                self.reqRep(everyClass + str(multiBit), dateStr)
+                self.req_rep(everyClass + str(multiBit), date_str)
                 print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(everyClass + str(multiBit))
                 time.sleep(4)
-            self.logFailTrain()
+            self.log_fail_train()
             print 'trainHook.py: Info: Verify trainNums that more than 1k ends.'
 
-    def catchLocal(self, dateStr):
+    def catch_local(self, date_str):
         """Catch all trainNums in local class.
            Local trains have their trainNum in 4-bits number only.
         """
-        self.thisClassFailList = []
+        self.this_class_fail = []
         # Use a 2-bit number as keyword.
         for multiBit in range(10, 100):
-            self.reqRep(str(multiBit), dateStr, 2)
+            self.req_rep(str(multiBit), date_str, 2)
             print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(str(multiBit))
             time.sleep(4)
-        self.logFailTrain()
+        self.log_fail_train()
         print 'trainHook.py: Info: Verify local trains ends.'
 
-    def catchTravel(self, dateStr):
+    def catch_travel(self, date_str):
         """Catch all trainNums of travel trains.
            Travel trains have their trainNums in Pxxx format.
         """
-        self.thisClassFailList = []
+        self.this_class_fail = []
         # Use Y1-Y9 as keywords.
-        trainClass = 'Y'
+        train_class = 'Y'
         for singleBit in range(1,10):
-            self.reqRep(trainClass + str(singleBit), dateStr, 1)
-            print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(trainClass + str(singleBit))
+            self.req_rep(train_class + str(singleBit), date_str, 1)
+            print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(train_class + str(singleBit))
             time.sleep(4)
-        self.logFailTrain()
+        self.log_fail_train()
         print 'trainHook.py: Info: Verify travel trains ends.'
 
-    def catchCrossborder(self, dateStr):
-        """Catch all trainNums of Crossborder trains(Kowloon-Shanghai/Beijing Through Train)
-           TrainNums contains P97-P100 only, So I use P as keyword directly.
+    def catch_cross_border(self, date_str):
+        """Catch all trainNums of Cross-border trains(Kowloon-Shanghai/Beijing Through Train)
+           TrainNums contains P97-P100 only, using P as keyword directly.
         """
-        self.thisClassFailList = []
-        trainClass = 'P'
-        self.reqRep(trainClass, dateStr, 1)
-        print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(trainClass)
-        self.logFailTrain()
-        print 'trainHook.py: Info: Verify crossborder trains ends.'
+        self.this_class_fail = []
+        train_class = 'P'
+        self.req_rep(train_class, date_str, 1)
+        print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(train_class)
+        self.log_fail_train()
+        print 'trainHook.py: Info: Verify cross-border trains ends.'
 
-    def reqRep(self, trainKeyWord, dateStr, judgement=0):
+    def req_rep(self, train_key_word, date_str, judgement=0):
         """Send request and get reply from API.
-           Divided from catchNormal function.
+           Divided from catch_normal function.
            If you want only the trainNum with its length less than 4,
            please set it to 1. With its default value(0), only trainNum with
            length more than 4 will be provided.
            For trainNum with length equals to 4, set it to 2.
         """
-        queryUrl = self.apiAddress.format(trainKeyWord, dateStr)
-        reqStr = self.proxyGet(queryUrl)
-        isLocalTrain = 0
-        # No data is replied.
-        if reqStr is None:
-            print 'trainHook.py: Warnging: Search for {} failed.'.format(trainKeyWord)
-            self.thisClassFailList.append(trainKeyWord)
+        query_url = self.apiAddress.format(train_key_word, date_str)
+        req_str = self.proxy_get(query_url)
+        is_local_train = 0
+        # Replied without train data.
+        if req_str is None:
+            print 'trainHook.py: Warning: Search for {} failed.'.format(train_key_word)
+            self.this_class_fail.append(train_key_word)
         else:
             # Process data in json.
-            reqJson = json.loads(reqStr)
-            for everyNum in reqJson["data"]:
+            req_json = json.loads(req_str)
+            for everyNum in req_json["data"]:
                 # Deal with trainNum on judgement.
                 # Touch the top of L5(having length less than 5) trainNum list.
                 if (judgement==1) and (len(everyNum['station_train_code']) > 4):
                     break
                 # The base of M4(having length more than 4) trainNum list.
-                elif not(judgement) and (len(everyNum['station_train_code']) < 5):
+                elif not judgement and (len(everyNum['station_train_code']) < 5):
                     continue
                 # Touch the top of local trains trainNum list.
-                elif (judgement==2) and (isLocalTrain==1) and (everyNum['station_train_code'][0:2]!=trainKeyWord):
+                elif (judgement==2) and (is_local_train==1) and (everyNum['station_train_code'][0:2]!=train_key_word):
                     break
                 # The base of local trains trainNum list.
-                elif (judgement==2) and (isLocalTrain==0):
-                    if everyNum['station_train_code'][0:2]==trainKeyWord:
-                        isLocalTrain = 1
+                elif (judgement==2) and (is_local_train==0):
+                    if everyNum['station_train_code'][0:2]==train_key_word:
+                        is_local_train = 1
                 else:
                     if judgement == 2:
-                        trainClass = 'A'
-                        trainNumber = everyNum['station_train_code']
+                        train_class = 'A'
+                        train_number = everyNum['station_train_code']
                     else:
-                        trainClass = everyNum['station_train_code'][0]
-                        trainNumber = everyNum['station_train_code'][1:]
-                    # The train is avilable, we only need to write the trainCode
-                    if self.trainDb.verifyTrain(trainClass, int(trainNumber)):
-                        self.codeDb.insert('{:0>8}'.format(str(trainVer)+trainClass + trainNumber),
-                                           dateStr[0:4]+'-'+dateStr[4:6]+'-'+dateStr[6:8],
+                        train_class = everyNum['station_train_code'][0]
+                        train_number = everyNum['station_train_code'][1:]
+                    # The train is available, we only need to write the trainCode
+                    if self.trainDb.verify_train(train_class, int(train_number)):
+                        self.codeDb.insert('{:0>8}'.format(str(trainVer)+train_class + train_number),
+                                           date_str[0:4]+'-'+date_str[4:6]+'-'+date_str[6:8],
                                            everyNum['train_no'])
                     # Insert a new train to train table if it does not exist.
                     else:
-                        self.trainDb.insertBase(int(trainNumber),
-                                                int(trainNumber),
-                                                trainClass,
-                                                '{:0>8}'.format(str(trainVer)+trainClass + trainNumber),
+                        self.trainDb.insert_base(int(train_number),
+                                                int(train_number),
+                                                train_class,
+                                                '{:0>8}'.format(str(trainVer)+train_class + train_number),
                                                 1)
-                        self.codeDb.insert('{:0>8}'.format(str(trainVer)+trainClass + trainNumber),
-                                           dateStr[0:4]+'-'+dateStr[4:6]+'-'+dateStr[6:8],
+                        self.codeDb.insert('{:0>8}'.format(str(trainVer)+train_class + train_number),
+                                           date_str[0:4]+'-'+date_str[4:6]+'-'+date_str[6:8],
                                            everyNum['train_no'])
 
-    def proxyGet(self, siteUrl):
+    def proxy_get(self, site_url):
         """Get reply from specified URL using proxy.
-           Parameter siteUrl must be provided.
+           Parameter site_url must be provided.
         """
         import urllib2
         res = None
         # Fail times limit
         fail = 0
-        while (fail < 5):
-            # Load a ramdom proxy
-            proxyCount, randomProxy = self.proxyDb.random('HTTP')
-            del proxyCount
-            proxyUrl = "http://user:password@"+randomProxy[0]['address']+':'+str(randomProxy[0]['port'])
-            proxySupport = urllib2.ProxyHandler({'http':proxyUrl})
-            opener = urllib2.build_opener(proxySupport)
+        while fail < 5:
+            # Load a random proxy
+            proxy_count, random_proxy = self.proxyDb.random('HTTP')
+            del proxy_count
+            proxy_url = "http://user:password@"+random_proxy[0]['address']+':'+str(random_proxy[0]['port'])
+            proxy_support = urllib2.ProxyHandler({'http':proxy_url})
+            opener = urllib2.build_opener(proxy_support)
             urllib2.install_opener(opener)
             # Format a request
-            request = urllib2.Request(siteUrl, headers=header)
+            request = urllib2.Request(site_url, headers=header)
             try:
-                # Verfiy if the proxy is effective
+                # Verify whether the proxy is effective
                 if ipVerify:
                     print 'trainHook.py: Info: IP address verification'
                     print urllib2.urlopen('http://icanhazip.com', timeout=4).read()[0:-1]
@@ -180,43 +180,43 @@ class trainWebHook(object):
                 print 'trainHook.py: Error: Request error occurs'
                 print error
                 fail = fail + 1
-                randomProxy[0]['failTimes'] = randomProxy[0]['failTimes'] + 1
+                random_proxy[0]['fail_times'] = random_proxy[0]['fail_times'] + 1
             # write feedback to proxy database.
             finally:
-                randomProxy[0]['connectTimes'] = randomProxy[0]['connectTimes'] + 1
-                self.proxyDb.updateStatus(randomProxy[0]['proxyId'],
-                                          randomProxy[0]['connectTimes'],
-                                          randomProxy[0]['failTimes'])
+                random_proxy[0]['connect_times'] = random_proxy[0]['connect_times'] + 1
+                self.proxyDb.update_status(random_proxy[0]['proxy_id'],
+                                          random_proxy[0]['connect_times'],
+                                          random_proxy[0]['fail_times'])
                 if res is not None:
                     break
         return res
 
-    def logFailTrain(self, fileName='failTrain.json'):
-        """If too many errors occur in this train, log it to file.
+    def log_fail_train(self, file_name='failTrain.json'):
+        """If too many errors occur on this train, log it to file.
         """
-        with open(fileName, 'a') as fo:
-            json.dump(self.thisClassFailList, fo)
-        print 'trainHook.py: Info: Log failed trains done, with {} trains in it.'.format(len(self.thisClassFailList))
+        with open(file_name, 'a') as fo:
+            json.dump(self.this_class_fail, fo)
+        print 'trainHook.py: Info: Log failed trains done, with {} trains in it.'.format(len(self.this_class_fail))
 
 class test(object):
     
     def __init__(self):
-        self.myhook = trainWebHook()
+        self.my_hook = TrainWebHook()
 
-    def get(self, trainType):
+    def get(self, train_type):
         from datetime import date, timedelta
-        myDate = date.today() + timedelta(days=1)
-        if trainType == 'local' or trainType == 'l':
-            self.myhook.catchLocal(myDate.strftime('%Y%m%d'))
-        elif trainType == 'travel' or trainType == 't':
-            self.myhook.catchTravel(myDate.strftime('%Y%m%d'))
-        elif trainType == 'crossborder' or trainType == 'c':
-            self.myhook.catchCrossborder(myDate.strftime('%Y%m%d'))
+        my_date = date.today() + timedelta(days=1)
+        if train_type == 'local' or train_type == 'l':
+            self.my_hook.catch_local(my_date.strftime('%Y%m%d'))
+        elif train_type == 'travel' or train_type == 't':
+            self.my_hook.catch_travel(my_date.strftime('%Y%m%d'))
+        elif train_type == 'crossborder' or train_type == 'c':
+            self.my_hook.catch_cross_border(my_date.strftime('%Y%m%d'))
         else:
-            self.myhook.catchNormal(myDate.strftime('%Y%m%d'))
+            self.my_hook.catch_normal(my_date.strftime('%Y%m%d'))
 
 if __name__ == "__main__":
     import sys
-    trainType = sys.argv[1] if len(sys.argv) > 1 else 'normal'
+    input_type = sys.argv[1] if len(sys.argv) > 1 else 'normal'
     obj = test()
-    obj.get(trainType)
+    obj.get(input_type)

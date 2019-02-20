@@ -1,7 +1,7 @@
-[{"varName":"trainStr", "varType":"VARCHAR(8)", "primary": true},
- {"varName":"trainNum0", "varType":"SMALLINT UNSIGNED"},
- {"varName":"trainNum1", "varType":"SMALLINT UNSIGNED"},
- {"varName":"trainClass", "varType":"VARCHAR(1)"},
- {"varName":"seqId", "varType":"SMALLINT UNSIGNED", "foreign":{"table":"seq", "var":"seqId"}},
- {"varName":"seqRank", "varType":"TINYINT UNSIGNED"}, 
- {"varName":"status", "varType":"BOOLEAN"}]
+[{"var_name":"train_str", "var_type":"VARCHAR(8)", "primary": true},
+ {"var_name":"train_num0", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"train_num1", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"train_class", "var_type":"VARCHAR(1)"},
+ {"var_name":"seq_id", "var_type":"SMALLINT UNSIGNED", "foreign":{"table":"seq", "var":"seq_id"}},
+ {"var_name":"seq_rank", "var_type":"TINYINT UNSIGNED"},
+ {"var_name":"status", "var_type":"BOOLEAN"}]

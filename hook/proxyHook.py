@@ -1,17 +1,17 @@
-#----------------------------------------------------------------#
 # Module Name: ProxyHook #
-# Function: Search for proxys that are avilable. #
-# Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Dec/27/2018 #
-#----------------------------------------------------------------#
+# Function: Search for proxy that are available. #
+# Author: Kumo Lam(https://github.com/Kumo-YZX) #
+# Last Edit: Feb/19/2019 #
 
-def loadModule(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('proxy', '../dbmaria/dbproxy/proxy.py')
 
-testUrl = 'https://search.12306.cn/search/v1/train/search?keyword=z1&date=20181228'
+load_module('proxy', '../dbmaria/dbproxy/proxy.py')
+
+test_url = 'https://search.12306.cn/search/v1/train/search?keyword=z1&date=20181228'
 
 import proxy 
 
@@ -21,87 +21,94 @@ import urllib2
 import json
 import socket, httplib
 
-header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-         "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
+header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +\
+          "(KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
 
-class proxyData(object):
+
+class ProxyData(object):
 
     def __init__(self):
-        self.proxyDb = proxy.table()
-        print 'proxyHook.py: Info: Init done.'
+        self.proxyDb = proxy.Table()
+        print('proxyHook.py: Info: Init done.')
+        self._proxy_list = []
+        self._verify_list = []
 
-    def getProxy(self):
+    def get_proxy(self):
         """Get proxy text from file.
         """
         with open('proxy1.html', 'r') as fi:
-            rawData = fi.read()
-        self._proxyList =[]
-        for everyProxy in re.findall(r'<td class=tdl>.{358,418}<tr', rawData):
-            print len(everyProxy)
-            strProxy =everyProxy+'>'
-            print strProxy
-            sonObj =BeautifulSoup(strProxy, 'html.parser')
-            print re.findall('&nbsp;(.*?)\\s<span>', strProxy)
-            categoryList = str(sonObj.findAll('td')[4].string).split(', ')
-            if 'HTTP' in categoryList:
-                httpSupport = 1
+            raw_data = fi.read()
+        self._proxy_list = []
+        for everyProxy in re.findall(r'<td class=tdl>.{358,418}<tr', raw_data):
+            print(len(everyProxy))
+            str_proxy = everyProxy+'>'
+            print(str_proxy)
+            son_obj = BeautifulSoup(str_proxy, 'html.parser')
+            print(re.findall('&nbsp;(.*?)\\s<span>', str_proxy))
+            category_list = str(son_obj.findAll('td')[4].string).split(', ')
+            if 'HTTP' in category_list:
+                support_http = 1
             else:
-                httpSupport = 0
-            if 'HTTPS' in categoryList:
-                httpsSupport = 1
+                support_http = 0
+            if 'HTTPS' in category_list:
+                support_https = 1
             else:
-                httpsSupport = 0
+                support_https = 0
 
-            sonDict ={"address":str(sonObj.find('td', attrs={"class":"tdl"}).string),
-                    "port":int(sonObj.findAll('td')[1].string),
-                    "country":str(re.findall('&nbsp;(.*?)\\s<span>', strProxy)[0]),
-                    "delay":int((sonObj.findAll('p')[0].string)[0:-3]),
-                    "state":str(sonObj.findAll('td')[5].string),
-                    "failTimes":0,
-                    "connectTimes":0,
-                    "http":httpSupport,
-                    "https":httpsSupport
-                    }
-            self._proxyList.append(sonDict)
-        print len(self._proxyList)
+            son_dict = {"address": str(son_obj.find('td', attrs={"class":"tdl"}).string),
+                        "port": int(son_obj.findAll('td')[1].string),
+                        "country": str(re.findall('&nbsp;(.*?)\\s<span>', str_proxy)[0]),
+                        "delay": int(son_obj.findAll('p')[0].string[0:-3]),
+                        "state": str(son_obj.findAll('td')[5].string),
+                        "fail_times": 0,
+                        "connect_times": 0,
+                        "http": support_http,
+                        "https": support_https
+                        }
+            self._proxy_list.append(son_dict)
+        print(len(self._proxy_list))
 
-    def verifyProxy(self, fileName='proxyList', siteUrl=testUrl):
-        """Verify if the proxy is avilable for specified site.
+    def verify_proxy(self, file_name='proxy_list', site_url=test_url):
+        """Verify if the proxy is available for specified site.
         """
         from datetime import date
-        fileName = fileName + date.today().strftime('%Y%m%d') + '.json'
-        proxyNo =0
-        self._verifyList =[]
-        while proxyNo <len(self._proxyList):
-            proxyUrl = "http://user:password@"+self._proxyList[proxyNo]['address']+':'+str(self._proxyList[proxyNo]['port'])
-            proxySupport = urllib2.ProxyHandler({'http':proxyUrl})
-            opener = urllib2.build_opener(proxySupport)
+        file_name = file_name + date.today().strftime('%Y%m%d') + '.json'
+        proxy_no =0
+        self._verify_list =[]
+        while proxy_no < len(self._proxy_list):
+            proxy_url = "http://user:password@"+self._proxy_list[proxy_no]['address']+':'+\
+                        str(self._proxy_list[proxy_no]['port'])
+            proxy_support = urllib2.ProxyHandler({'http':proxy_url})
+            opener = urllib2.build_opener(proxy_support)
             urllib2.install_opener(opener)
-            request =urllib2.Request(siteUrl, headers=header)
+            request = urllib2.Request(site_url, headers=header)
             try:
-                ipStr = urllib2.urlopen('http://icanhazip.com', timeout=4).read()[0:-1]
-                print ipStr
-                if ipStr == self._proxyList[proxyNo]['address']:
-                    print (urllib2.urlopen(request, timeout=8).read())[110:180]
-                    self._verifyList.append(self._proxyList[proxyNo])
-                    if self.proxyDb.verify(self._proxyList[proxyNo]['address'], self._proxyList[proxyNo]['port']):
-                        print 'proxyHook.py: Info: This proxy already exists.'
+                ip_str = urllib2.urlopen('http://icanhazip.com', timeout=4).read()[0:-1]
+                print(ip_str)
+                if ip_str == self._proxy_list[proxy_no]['address']:
+                    print(urllib2.urlopen(request, timeout=8).read()[110:180])
+                    self._verify_list.append(self._proxy_list[proxy_no])
+                    if self.proxyDb.verify(self._proxy_list[proxy_no]['address'], self._proxy_list[proxy_no]['port']):
+                        print('proxyHook.py: Info: This proxy already exists.')
                     else:
-                        self.proxyDb.insertDict(self._proxyList[proxyNo])
-                        print 'proxyHook.py: Info: Find a new proxy.'
+                        self.proxyDb.insert_dict(self._proxy_list[proxy_no])
+                        print('proxyHook.py: Info: Find a new proxy.')
                 else:
-                    print 'proxyHook.py: Info: IP verify fails..'
-            except Exception as error:#(urllib2.HTTPError, urllib2.URLError, socket.timeout, socket.error, httplib.BadStatusLine) as error:
-                print 'proxyHook.py: Error: An error occurs with this proxy.'
-                print error
-                self._proxyList[proxyNo]['state'] = 'No'
+                    print('proxyHook.py: Info: IP verify fails..')
+            # (urllib2.HTTPError, urllib2.URLError, socket.timeout, socket.error, httplib.BadStatusLine) as error:
+            except Exception as error:
+                print('proxyHook.py: Error: An error occurs with this proxy.')
+                print(error)
+                self._proxy_list[proxy_no]['state'] = 'No'
             finally:
-                proxyNo +=1
-                with open(fileName, 'w+') as fo:
-                    json.dump(self._verifyList, fo)
-                print '-'*36
+                proxy_no +=1
+                with open(file_name, 'w+') as fo:
+                    json.dump(self._verify_list, fo)
+                print('-'*36)
+
 
 if __name__ == "__main__":
-    proxyObj = proxyData()
-    proxyObj.getProxy()
-    proxyObj.verifyProxy()
+    proxyObj = ProxyData()
+    proxyObj.get_proxy()
+    proxyObj.verify_proxy()

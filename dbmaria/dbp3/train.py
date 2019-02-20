@@ -1,115 +1,116 @@
-#----------------------------------------------------------------#
 # Module Name: Train #
 # Function: Define commands to control items in TRAIN table. #
-# Author: Kumo #
-# Last Edit: Dec/14/2018 #
-#----------------------------------------------------------------#
+# Author: Kumo(https://github.com/Kumo-YZX) #
+# Last Edit: Feb/19/2019 #
 
-def loadModule(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('dbmaria', '../dbmaria2.py')
 
-from dbmaria import dbBase
+load_module('dbmaria', '../dbmaria2.py')
+
+from dbmaria import DbBase
 import json
 
 webClass = ['G', 'D', 'C', 'Z', 'T', 'K', 'O']
 actualClass = ['G', 'D', 'C', 'Z', 'T', 'K', 'S', 'Y', 'P']
 
-class table(dbBase):
+
+class Table(DbBase):
 
     def __init__(self):
-        dbBase.__init__(self, 'train')
+        DbBase.__init__(self, 'train')
 
-    def create(self, definitionFile='train_definition.json'):
-        with open(definitionFile) as fi:
-            self.createTable(json.load(fi))
+    def create(self, definition_file='train_definition.json'):
+        with open(definition_file) as fi:
+            self.create_table(json.load(fi))
 
 # ImportFile function is already moved to trainHook
 #   def importFile(self, date, trainFile='trainData.json'):
 
-    def insertBase(self, trainNum0, trainNum1, trainClass, trainStr, status):
+    def insert_base(self, train_num0, train_num1, train_class, train_str, status):
         """Insert a train to the table.
            All parameters are required.
         """
-        self.insertData({"trainNum0":trainNum0,
-                         "trainNum1":trainNum1,
-                         "trainClass":trainClass,
-                         "trainStr":trainStr,
-                         "status":status
-                         })
+        self.insert_data({"train_num0": train_num0,
+                          "train_num1": train_num1,
+                          "train_class": train_class,
+                          "train_str": train_str,
+                          "status": status
+                          })
     
-    def insertDict(self, parameterDict):
-        """Insert data to database directly, using data dict directly.
+    def insert_dict(self, parameter_dict):
+        """Insert data formatted in dict to database directly.
         """
-        self.insertData(parameterDict)
+        self.insert_data(parameter_dict)
 
-    def updateBase(self, OriginalTrain, PresentTrain, trainClass):
-        """Change the trainNum1 value of a train.
+    def update_base(self, original_train, present_train, train_class):
+        """Update the train_num1 value of a train.
            All parameters are required.
-           TrainNum1 value of the item that OriginalTrain maches will be updated to PresentTrain.
+           TrainNum1 value of the item that original_train matches will be updated to present_train.
         """
-        self.updateData({"trainNum1":PresentTrain}, 
-                       [{"trainNum0":OriginalTrain,
-                         "trainClass":trainClass}])
+        self.update_data({"train_num1": present_train},
+                         [{"train_num0": original_train,
+                          "train_class": train_class}])
 
-    def updateStatus(self, trainNum, trainClass, status):
+    def update_status(self, train_num, train_class, status):
         """Change the status of a train.
            All parameters are required.
         """
-        self.updateData({"status":status},
-                       [{"trainClass":trainClass},
-                        {"trainNum0":trainNum,
-                         "trainNum1":trainNum}],
-                        OASequence=1)
+        self.update_data({"status": status},
+                         [{"train_class": train_class},
+                         {"train_num0": train_num,
+                          "train_num1": train_num}],
+                         oa_sequence=1)
 
-    def updateSeq(self, trainStr, seqId, seqRank):
+    def update_seq(self, train_str, seq_id, seq_rank):
         """Change the seq value of a train.
            All parameters are required.
            SeqId is the serial number of the sequence they subordinated.
            SeqRank is the sort in this sequence.
         """
-        self.updateData({"seqId":seqId,
-                         "seqRank":seqRank},
-                       [{"trainStr":trainStr}])
+        self.update_data({"seq_id": seq_id,
+                         "seq_rank": seq_rank},
+                         [{"train_str": train_str}])
 
-    def verifyTrain(self, trainClass, trainNum):
+    def verify_train(self, train_class, train_num):
         """Count the trains that match the condition.
-           The trainClass must be a charater and trainNum must be a integer less than 1w.
+           The train_class must be a character and train_num must be a integer less than 10k.
            Result is a single number.
         """
-        res = self.verifyExistence([{"trainClass":trainClass},
-                                    {"trainNum0":trainNum,
-                                     "trainNum1":trainNum}],
-                                    OASequence=1)
+        res = self.verify_existence([{"train_class": train_class},
+                                    {"train_num0": train_num,
+                                     "train_num1": train_num}],
+                                    oa_sequence=1)
         return res[0]['COUNT(1)']
     
-    def verifyStr(self, trainStr):
+    def verify_str(self, train_str):
         """Verify the existence of a train.
-           You should provide the trainStr of this item.
+           You should provide the train_str of this item.
         """
-        res = self.verifyExistence([{"trainStr":trainStr}])
+        res = self.verify_existence([{"train_str": train_str}])
         return res[0]['COUNT(1)']
 
-    def verifySingle(self, trainClass, trainNum0):
-        """Verify the existence of a train, using only the trainNum0 value.
+    def verify_single(self, train_class, train_num0):
+        """Verify the existence of a train, using only the train_num0 value.
            Parameters are all required.
         """
-        res = self.verifyExistence([{"trainClass":trainClass,
-                                     "trainNum0":trainNum0}])
+        res = self.verify_existence([{"train_class": train_class,
+                                     "train_num0": train_num0}])
         return res[0]['COUNT(1)']
 
-# Edited Dec/14/2018: Change Meaningless defalue value to NONE #
+# Edited Dec/14/2018: Change Meaningless default value to NONE #
     def delete(self, key=None, value=None):
         """Delete a train.
            Parameters are not essential, causing all data deleted.
-           If provided, only defigned item will be deleted.
+           If provided, only designed item will be deleted.
         """
         if key is None:
-            self.deleteData([])
+            self.delete_data([])
         else:
-            self.deleteData([{key:value}])
+            self.delete_data([{key: value}])
 
     def search(self, key=None, value=None):
         """Search for train(s).
@@ -117,51 +118,53 @@ class table(dbBase):
            If provided, the item they marked will be returned.
         """
         if key is None:
-            res = self.queryData([])
+            res = self.query_data([])
         else:
-            res = self.queryData([{key:value}])
+            res = self.query_data([{key: value}])
         
         return len(res), res
 
-    def searchList(self, start, end, trainClass):
-        """Search for trains with trainNum in a particular range.
-           The start & end parameter must be integers mark the buttom and top of the range.
-           The trainClass must be a charater.
-           Only the list of trainStrs and amount will be returned.
+    def search_list(self, start, end, train_class):
+        """Search for trains with train_num in a particular range.
+           The start & end parameter must be integers mark the button and top of range.
+           The train_class must be a character.
+           Only the list of train_strs and amount will be returned.
         """
-        res = self.queryData([{"trainNum0":{"judge":"between", "start":start, "end":end},
-                               "trainClass":trainClass,
-                               "status":True}],
-                               ['trainStr'])
+        res = self.query_data([{"train_num0": {"judge": "between", "start": start, "end": end},
+                                "train_class": train_class,
+                                "status": True}],
+                              ['train_str'])
 
         return len(res), res
 
-    def searchSingle(self, trainClass, trainNum, status=True):
-        """Search for a train with particular trainNum0.
-           The trainClass must be a charater and trainNum must be a integer.
+    def search_single(self, train_class, train_num, status=True):
+        """Search for a train with particular train_num0.
+           The train_class must be a character and train_num must be a integer.
            Amount of the train and list of results will be returned.
         """
-        res = self.queryData([{"trainNum0":trainNum,
-                               "trainClass":trainClass,
-                               "status":status}])
+        res = self.query_data([{"train_num0": train_num,
+                               "train_class": train_class,
+                                "status": status}])
 
         return len(res), res
 
-    def searchDual(self, trainClass, trainNum, status=True):
-        """Search for a train having trainNum0 or trainNum1 ???????
-           The trainClass must be a charater and trainNum must be a integer.
+    def search_dual(self, train_class, train_num, status=True):
+        """Search for a train having train_num0 or train_num1 ???????
+           The train_class must be a character and train_num must be a integer.
            Amount of the train and list of results will be returned.
         """
-        res = self.queryData([{"trainNum0":trainNum, "trainNum1":trainNum},
-                              {"trainClass":trainClass},
-                              {"status":status}],
-                              OASequence=1)
+        res = self.query_data([{"train_num0": train_num, "train_num1": train_num},
+                              {"train_class": train_class},
+                              {"status": status}],
+                              oa_sequence=1)
 
         return len(res), res
 
-def initalize():
-    obj = table()
+
+def initialize():
+    obj = Table()
     obj.create()
 
+
 if __name__ == "__main__":
-    initalize()
+    initialize()

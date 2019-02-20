@@ -1,54 +1,52 @@
-#----------------------------------------------------------------#
 # Module Name: TrainCode #
-# Function: Define commands to control items in trainCode table. TrainCodes follow trains. #
-# Author: Kumo #
-# Last Edit: Dec/14/2018 #
-#----------------------------------------------------------------#
+# Function: Define commands to control items in train_code table. TrainCodes follow trains. #
+# Author: Kumo(https://github.com/Kumo-YZX) #
+# Last Edit: Feb/20/2019 #
 
-def loadModule(name, path):
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('dbmaria', '../dbmaria2.py')
+load_module('dbmaria', '../dbmaria2.py')
 
-from dbmaria import dbBase
+from dbmaria import DbBase
 import json
 
-class table(dbBase):
+class Table(DbBase):
 
     def __init__(self):
-        dbBase.__init__(self, 'trainCode')
+        DbBase.__init__(self, 'trainCode')
 
-    def create(self, definitionFile='trainCode_definition.json'):
-        with open(definitionFile) as fi:
+    def create(self, definition_file='train_code_definition.json'):
+        with open(definition_file) as fi:
             self.createTable(json.load(fi))
 
-    def insert(self, trainStr, departDate, trainCode):
-        """Insert a trainCode data to database.
-           The departDate parameter must be in YYYY-MM-DD fromat.
-           The trainStr and trainCode parameter must be strings with length of 8 and 12.
+    def insert(self, train_str, depart_date, train_code):
+        """Insert a train_code data to database.
+           The depart_date parameter must be in YYYY-MM-DD format.
+           The train_str and train_code parameter must be strings with length of 8 and 12.
         """
-        if not(self.verify(trainStr, departDate)):
-            self.insertData({"trainStr":trainStr, "departDate":departDate, "trainCode":trainCode})
+        if not(self.verify(train_str, depart_date)):
+            self.insertData({"train_str":train_str, "depart_date":depart_date, "train_code":train_code})
 
-    def search(self, trainStr, depDate=''):
-        """Search for a data with particular trainStr.
-           The depDate parameter is not essential.
+    def search(self, train_str, dep_date=''):
+        """Search for a data with particular train_str.
+           The dep_date parameter is not essential.
            If provided, result will only contain data behind that date.
            It bust must be in YYYY-MM-DD format.
-           Return value is in L(ength)/R(esult) formet.
+           Return value is in L(length)/R(result) format.
         """
-        if depDate == '':
-            res = self.queryData([{"trainStr":trainStr}])
+        if dep_date == '':
+            res = self.queryData([{"train_str":train_str}])
         else:
-            res = self.queryData([{"trainStr":trainStr,
-                                   "departDate":{"judge":">=", "value":depDate}}])
+            res = self.queryData([{"train_str":train_str,
+                                   "depart_date":{"judge":">=", "value":dep_date}}])
         return len(res), res
 
-    def insertDict(self, parameterDict):
-        self.insertData(parameterDict)
+    def insert_dict(self, parameter_dict):
+        self.insertData(parameter_dict)
 
-    def searchAll(self):
+    def search_all(self):
         """Search for all the data in this table.
            Not recommand to use.
         """
@@ -65,18 +63,18 @@ class table(dbBase):
         else:
             self.deleteData([{key:value}])
 
-    def verify(self, trainStr, date):
-        """Count the data that matchs with particular trainStr and date.
+    def verify(self, train_str, date):
+        """Count the data that matches particular train_str and date.
         """
-        res = self.verifyExistence([{"trainStr":trainStr, 
-                                     "departDate":date}])
+        res = self.verifyExistence([{"train_str":train_str,
+                                     "depart_date":date}])
         return res[0]['COUNT(1)']
 
-def initalize():
-    obj = table()
+def initialize():
+    obj = Table()
     obj.create()
 
 if __name__ == "__main__":
-    initalize()
+    initialize()
 
 

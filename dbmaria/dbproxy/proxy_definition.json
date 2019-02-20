@@ -1,9 +1,9 @@
-[{"varName":"proxyId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true}, 
- {"varName":"address", "varType":"VARCHAR(15)"}, 
- {"varName":"port", "varType":"SMALLINT UNSIGNED"}, 
- {"varName":"failTimes", "varType":"MEDIUMINT UNSIGNED"}, 
- {"varName":"connectTimes", "varType":"MEDIUMINT UNSIGNED"}, 
- {"varName":"country", "varType":"VARCHAR(64)"}, {"varName":"delay", "varType":"SMALLINT UNSIGNED"}, 
- {"varName":"state", "varType":"VARCHAR(16)"}, 
- {"varName":"http", "varType":"BOOLEAN"}, 
- {"varName":"https", "varType":"BOOLEAN"}]
+[{"var_name":"proxy_id", "var_type":"INT UNSIGNED", "primary":true, "auto_inc":true},
+ {"var_name":"address", "var_type":"VARCHAR(15)"},
+ {"var_name":"port", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"fail_times", "var_type":"MEDIUMINT UNSIGNED"},
+ {"var_name":"connect_times", "var_type":"MEDIUMINT UNSIGNED"},
+ {"var_name":"country", "var_type":"VARCHAR(64)"}, {"var_name":"delay", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"state", "var_type":"VARCHAR(16)"},
+ {"var_name":"http", "var_type":"BOOLEAN"},
+ {"var_name":"https", "var_type":"BOOLEAN"}]

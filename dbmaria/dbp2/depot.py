@@ -65,12 +65,12 @@ def test():
     obj = Table()
     obj.create()
     while(1):
-        depot_id = raw_input('depot_id:')
+        depot_id = raw_input("depot_id:")
         if int(depot_id) == 9999:
             break
-        depot_cn = raw_input('depot_cn:')
+        depot_cn = raw_input("depot_cn:")
         obj.insert(int(depot_id), depot_cn)
-    print 'dbmaria/dbp2/depot.py: Info: Add depot data completed.'
+    print('dbmaria/dbp2/depot.py: Info: Add depot data completed.')
 
 
 if __name__ == '__main__':

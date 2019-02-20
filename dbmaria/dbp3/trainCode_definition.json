@@ -1,4 +1,4 @@
-[{"varName":"trainCodeId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true},
- {"varName":"trainStr", "varType":"VARCHAR(8)", "foreign":{"table":"train", "var":"trainStr"}},
- {"varName":"departDate", "varType":"DATE"},
- {"varName":"trainCode", "varType":"VARCHAR(12)"}]
+[{"var_name":"train_code_id", "var_type":"INT UNSIGNED", "primary":true, "auto_inc":true},
+ {"var_name":"train_str", "var_type":"VARCHAR(8)", "foreign":{"table":"train", "var":"train_str"}},
+ {"var_name":"depart_date", "var_type":"DATE"},
+ {"var_name":"train_code", "var_type":"VARCHAR(12)"}]
