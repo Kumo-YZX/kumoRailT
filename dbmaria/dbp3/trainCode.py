@@ -17,9 +17,9 @@ class Table(DbBase):
     def __init__(self):
         DbBase.__init__(self, 'trainCode')
 
-    def create(self, definition_file='train_code_definition.json'):
+    def create(self, definition_file='trainCode_definition.json'):
         with open(definition_file) as fi:
-            self.createTable(json.load(fi))
+            self.create_table(json.load(fi))
 
     def insert(self, train_str, depart_date, train_code):
         """Insert a train_code data to database.
@@ -27,7 +27,7 @@ class Table(DbBase):
            The train_str and train_code parameter must be strings with length of 8 and 12.
         """
         if not(self.verify(train_str, depart_date)):
-            self.insertData({"train_str":train_str, "depart_date":depart_date, "train_code":train_code})
+            self.insert_data({"train_str":train_str, "depart_date":depart_date, "train_code":train_code})
 
     def search(self, train_str, dep_date=''):
         """Search for a data with particular train_str.
@@ -37,20 +37,20 @@ class Table(DbBase):
            Return value is in L(length)/R(result) format.
         """
         if dep_date == '':
-            res = self.queryData([{"train_str":train_str}])
+            res = self.query_data([{"train_str":train_str}])
         else:
-            res = self.queryData([{"train_str":train_str,
+            res = self.query_data([{"train_str":train_str,
                                    "depart_date":{"judge":">=", "value":dep_date}}])
         return len(res), res
 
     def insert_dict(self, parameter_dict):
-        self.insertData(parameter_dict)
+        self.insert_data(parameter_dict)
 
     def search_all(self):
         """Search for all the data in this table.
-           Not recommand to use.
+           Not recommend to use.
         """
-        res = self.queryData([])
+        res = self.query_data([])
         return len(res), res
 
     def delete(self, key=None, value=None):
@@ -59,14 +59,14 @@ class Table(DbBase):
            If provided, only the item designated will be deleted. 
         """
         if key is None:
-            self.deleteData([])
+            self.delete_data([])
         else:
-            self.deleteData([{key:value}])
+            self.delete_data([{key:value}])
 
     def verify(self, train_str, date):
         """Count the data that matches particular train_str and date.
         """
-        res = self.verifyExistence([{"train_str":train_str,
+        res = self.verify_existence([{"train_str":train_str,
                                      "depart_date":date}])
         return res[0]['COUNT(1)']
 
