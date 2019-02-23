@@ -2,6 +2,7 @@
 # Function: Import train&trainCode data from local file. #
 # Author: Kumo Lam(https://github.com/Kumo-YZX) #
 # Last Edit: Feb/20/2019 #
+#
 
 def load_module(name, path):
     import os, imp
@@ -18,6 +19,8 @@ import json, time
 
 normalClass = ['G', 'D', 'C', 'Z', 'T', 'K']
 specialClass = ['Y', 'P', 'S']
+web_class = ['G', 'D', 'C', 'Z', 'T', 'K', 'O']
+actual_class = ['G', 'D', 'C', 'Z', 'T', 'K', 'S', 'Y', 'P']
 ipVerify = 1
 trainVer = 1
 header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +\
@@ -32,6 +35,7 @@ class TrainWebHook(object):
         self.trainDb = train.Table()
         self.codeDb = trainCode.Table()
         self.this_class_fail = []
+        self.all_list = {}
         print 'trainHook.py: Info: TrainWebHook Init done'
 
     def catch_normal(self, date_str):
@@ -106,7 +110,7 @@ class TrainWebHook(object):
         req_str = self.proxy_get(query_url)
         is_local_train = 0
         # Replied without train data.
-        if req_str is None:
+        if req_str is None or "data" not in req_str:
             print 'trainHook.py: Warning: Search for {} failed.'.format(train_key_word)
             self.this_class_fail.append(train_key_word)
         else:
@@ -191,14 +195,97 @@ class TrainWebHook(object):
                     break
         return res
 
-    def log_fail_train(self, file_name='failTrain.json'):
+    def log_fail_train(self, file_name='fail_train.json'):
         """If too many errors occur on this train, log it to file.
         """
         with open(file_name, 'a') as fo:
             json.dump(self.this_class_fail, fo)
         print 'trainHook.py: Info: Log failed trains done, with {} trains in it.'.format(len(self.this_class_fail))
 
-class test(object):
+    def load_local_file(self, file_name="train_list.json"):
+        """
+
+        :param file_name: String
+        :return: None
+        """
+        with open(file_name, 'r') as fi:
+            self.all_list = json.load(fi)
+
+
+    def import_form_file(self, date, train_ver=1):
+        """
+
+        :param date:
+        :param train_ver:
+        :return:
+        """
+        if date in self.all_list:
+            for every_class in web_class:
+                # Catch the list of specified date and class.
+                train_list = self.all_list[date][every_class]
+                for every_train in train_list:
+                    # Catch train_no.
+                    train_no = every_train['station_train_code'].split('(')[0]
+                    train_str = ''
+                    flag = 0
+                    # Catch train_str from long big string.
+                    for every_char in every_train['train_no'][2:-2]:
+                        if every_char != '0':
+                            flag = 1
+                        if flag == 1:
+                            train_str = train_str + every_char
+                    # Care about the basic train number.
+                    if train_no == train_str:
+                        if train_no[0] in actual_class:
+                            train_num = int(train_no[1:])
+                            train_class = train_no[0]
+                        else:
+                            train_num = int(train_no)
+                            train_class = 'A'
+
+                        internal_str = '{:0>8}'.format(str(train_ver) + train_class + str(train_num))
+                        if not self.trainDb.verify_str(internal_str):
+                            # Invalidate the old version if it exists.
+                            self.trainDb.update_status(train_num, train_class, False)
+                            print("Now: Insert: {}".format(internal_str))
+                            # Insert the new version.
+                            self.trainDb.insert_base(train_num, train_num, train_class, internal_str, True)
+
+                        if not self.codeDb.verify(internal_str, date):
+                            self.codeDb.insert(internal_str, date, every_train['train_no'])
+
+                for every_train in train_list:
+                    train_no = every_train['station_train_code'].split('(')[0]
+                    train_str = ''
+                    flag = 0
+                    for every_char in every_train['train_no'][2:-2]:
+                        if every_char != '0':
+                            flag = 1
+                        if flag == 1:
+                            train_str = train_str + every_char
+                    # Care about the special number.
+                    # This module will update train_num1 if the train have another alias.
+                    if train_no != train_str:
+                        if train_no[0] in actual_class:
+                            train_num = int(train_no[1:])
+                            actual_num = int(train_str[1:])
+                            train_class = train_no[0]
+                        else:
+                            train_num = int(train_no)
+                            actual_num = int(train_str)
+                            train_class = 'A'
+                        print("Now: Update: {}, {}".format(actual_num, train_class))
+                        self.trainDb.update_base(actual_num, train_num, train_class)
+
+def test_import_file():
+    from datetime import date, timedelta
+    my_date = date.today() + timedelta(days=1)
+    import_obj = TrainWebHook()
+    import_obj.load_local_file()
+    import_obj.import_form_file(my_date.strftime('%Y-%m-%d'))
+
+
+class Test(object):
     
     def __init__(self):
         self.my_hook = TrainWebHook()
@@ -210,13 +297,15 @@ class test(object):
             self.my_hook.catch_local(my_date.strftime('%Y%m%d'))
         elif train_type == 'travel' or train_type == 't':
             self.my_hook.catch_travel(my_date.strftime('%Y%m%d'))
-        elif train_type == 'crossborder' or train_type == 'c':
+        elif train_type == 'cross-border' or train_type == 'c':
             self.my_hook.catch_cross_border(my_date.strftime('%Y%m%d'))
-        else:
+        elif train_type == 'normal' or train_type == 'n':
             self.my_hook.catch_normal(my_date.strftime('%Y%m%d'))
+        else:
+            test_import_file()
 
 if __name__ == "__main__":
     import sys
-    input_type = sys.argv[1] if len(sys.argv) > 1 else 'normal'
-    obj = test()
+    input_type = sys.argv[1] if len(sys.argv) > 1 else 'file'
+    obj = Test()
     obj.get(input_type)
