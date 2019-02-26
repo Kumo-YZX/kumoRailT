@@ -1,102 +1,107 @@
-#----------------------------------------------------------------#
 # Module Name: ArrHook #
 # Function: Import train arrival data form web page. #
-# Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Dec/31/2018 #
-#----------------------------------------------------------------#
+# Author: Kumo Lam(https://github.com/Kumo-YZX) #
+# Last Edit: Feb/27/2019 #
 
-def loadModule(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('arrival', '../dbmaria/dbp4/arrival.py')
-loadModule('train', '../dbmaria/dbp3/train.py')
-loadModule('trainCode', '../dbmaria/dbp3/trainCode.py')
-loadModule('staInfo', '../dbmaria/dbp1/staInfo.py')
-loadModule('proxy', '../dbmaria/dbproxy/proxy.py')
-loadModule('tool', '../tool/tool.py')
 
-import arrival, train, trainCode
+load_module('arrival', '../dbmaria/dbp4/arrival.py')
+load_module('train', '../dbmaria/dbp3/train.py')
+load_module('train_code', '../dbmaria/dbp3/train_code.py')
+load_module('staInfo', '../dbmaria/dbp1/staInfo.py')
+load_module('proxy', '../dbmaria/dbproxy/proxy.py')
+load_module('tool', '../tool/tool.py')
+
+import arrival, train, train_code
 import staInfo, proxy, tool
 import json
 
-header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36",
-         "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
-arrUrl = 'http://mobile.12306.cn/weixin/czxx/queryByTrainNo?train_no={}&from_station_telecode=BBB&to_station_telecode=BBB&depart_date={}'
+header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
+arrUrl = 'http://mobile.12306.cn/weixin/czxx/queryByTrainNo?train_no={}"+\
+         "&from_station_telecode=BBB&to_station_telecode=BBB&depart_date={}'
 verify = 1
 
-class trainArrHook(object):
+
+class TrainArrHook(object):
 
     def __init__(self):
         self.arrivalDb = arrival.table()
         self.trainDb = train.table()
-        self.codeDb = trainCode.table()
+        self.codeDb = train_code.table()
         self.stationDb = staInfo.table()
         self.proxyDb = proxy.table()
         print 'arrHook.py: Info: trainArrHook Init done.'
 
-    def addTrain(self, trainStr, date):
+    def add_train(self, train_str, date):
         """Add all arrival data of a train.
            Parameter date should be in YYYY-MM-DD format.
         """
         import time
         # Verify the operation status of specified train.
-        # In fact, any day in operation is ok to catch arrival data of this train(differernt trainStr marks differernt train).
-        codeStatus, codeInfo = self.codeDb.search(trainStr, date)
-        if codeStatus:
-            # Get arrival data by proxyGet function.
-            rawArrData = self.proxyGet(codeInfo[0]['trainCode'], codeInfo[0]['departDate'])
-            if rawArrData is not None:
-                arrData = json.loads(rawArrData)
-                arrList = arrData['data']['data']
-                finalList = []
-                if len(arrList):
+        # In fact, any day in operation is ok to catch arrival data of
+        # this train(different train_str marks different train).
+        code_status, code_info = self.codeDb.search(train_str, date)
+        if code_status:
+            # Get arrival data by proxy_get function.
+            raw_arr_data = self.proxy_get(code_info[0]['train_code'], code_info[0]['departDate'])
+            if raw_arr_data is not None:
+                arr_data = json.loads(raw_arr_data)
+                arr_list = arr_data['data']['data']
+                final_list = []
+                if len(arr_list):
                     # Replace arrive time of depart station and depart time of terminal station with 2401.
-                    arrList[0]['arrive_time'] = '24:01'
-                    arrList[-1]['start_time'] = '24:01'
+                    arr_list[0]['arrive_time'] = '24:01'
+                    arr_list[-1]['start_time'] = '24:01'
                     # Write every arrival to database.
-                    for everyArrival in arrList:
-                        stationStatus, stationInfo = self.stationDb.search('staCn', everyArrival['station_name'].encode('utf8').encode('hex'))
-                        if stationStatus:
-                            staTele = stationInfo[0]['staTele']
+                    for everyArrival in arr_list:
+                        station_status, station_info = \
+                            self.stationDb.search('staCn', everyArrival['station_name'].encode('utf8').encode('hex'))
+                        if station_status:
+                            sta_tele = station_info[0]['sta_tele']
                         else:
                             # The arrive station haven't been recorded.
-                            specialStationCount = self.stationDb.verifySpecial(10001)
-                            staTele = '{:0>3}'.format(specialStationCount+1)
-                            self.stationDb.insert({'staCn':everyArrival['station_name'].encode('utf8').encode('hex'),
-                                                'staTele':staTele,
-                                                'staPy':'0000',
-                                                'staNum':specialStationCount+10001})
+                            special_station_count = self.stationDb.verifySpecial(10001)
+                            sta_tele = '{:0>3}'.format(special_station_count+1)
+                            self.stationDb.insert({'staCn': everyArrival['station_name'].encode('utf8').encode('hex'),
+                                                   'sta_tele': sta_tele,
+                                                   'staPy': '0000',
+                                                   'staNum': special_station_count+10001})
                             print 'INSERT NEW STATION ' + everyArrival['station_name']
-                        # print staTele
-                        # Trainsfer time into integer format.
-                        arrTime = tool.str2int(everyArrival['arrive_time'])
-                        depTime = tool.str2int(everyArrival['start_time'])
+                        # print sta_tele
+                        # Transfer time into integer format.
+                        arr_time = tool.str2int(everyArrival['arrive_time'])
+                        dep_time = tool.str2int(everyArrival['start_time'])
 
-                        finalList.append({"staTele":staTele,
-                                        "staRank":int(everyArrival['station_no']),
-                                        "trainStr":trainStr,
-                                        "arrTime":arrTime,
-                                        "depTime":depTime})
-                    del arrData, arrList
-                    arrDate = 0
-                    depDate = 1
+                        final_list.append({"sta_tele": sta_tele,
+                                           "staRank": int(everyArrival['station_no']),
+                                           "train_str": train_str,
+                                           "arr_time": arr_time,
+                                           "dep_time": dep_time})
+                    del arr_data, arr_list
+                    arr_date = 0
+                    dep_date = 1
                     # Calculate the date of every arrival.
-                    for arrivalNo in range(1, len(finalList)):
-                        if finalList[arrivalNo]['arrTime'] < finalList[arrivalNo-1]['arrTime']:
-                            arrDate = arrDate + 1
-                        if finalList[arrivalNo]['depTime'] < finalList[arrivalNo-1]['depTime']:
-                            depDate = depDate + 1
-                        finalList[arrivalNo]['arrDate'] = arrDate
-                        finalList[arrivalNo]['depDate'] = depDate
-                    finalList[0]['arrDate'] = 1
-                    finalList[0]['depDate'] = 1
+                    for arrivalNo in range(1, len(final_list)):
+                        if final_list[arrivalNo]['arr_time'] < final_list[arrivalNo-1]['arr_time']:
+                            arr_date = arr_date + 1
+                        if final_list[arrivalNo]['dep_time'] < final_list[arrivalNo-1]['dep_time']:
+                            dep_date = dep_date + 1
+                        final_list[arrivalNo]['arr_date'] = arr_date
+                        final_list[arrivalNo]['dep_date'] = dep_date
+                    final_list[0]['arr_date'] = 1
+                    final_list[0]['dep_date'] = 1
 
                     # Write them to database.
-                    for everyArrival in finalList:
+                    for everyArrival in final_list:
                         self.arrivalDb.insertDict(everyArrival)
 
-                    writeLog('SUCCESS : '+ trainStr)
+                    write_log('SUCCESS : ' + train_str)
                     print 'arrHook.py: Info: Add arrival successfully.'
                 else:
                     print 'arrHook.py: Info: This train exists, but do not have arrival data.'
@@ -104,16 +109,16 @@ class trainArrHook(object):
             else:
                 # Log failed trains.
                 # But do not write to vancyFile. To check failed trains, please use CHECK function.
-                writeBC(trainStr)
-                writeLog('TOO MANY BAD CONNECTIONS : '+ trainStr)
-                print 'arrHook.py: Warning: Too many bad connections with [{}].'.format(trainStr)
+                write_bc(train_str)
+                write_log('TOO MANY BAD CONNECTIONS : ' + train_str)
+                print 'arrHook.py: Warning: Too many bad connections with [{}].'.format(train_str)
 
         else:
             print 'arrHook.py: Warning: This train does not operate on {}.'.format(date)
 
         print '-'*36
 
-    def proxyGet(self, trainCode, date):
+    def proxy_get(self, train_code, date):
         """Get reply from specified URL using proxy.
            Parameter must be provided.
         """
@@ -121,16 +126,16 @@ class trainArrHook(object):
         res = None
         # Fail time count.
         fail = 0
-        while (fail < 5):
+        while fail < 5:
             # Load a random proxy
-            proxyCount, randomProxy = self.proxyDb.random('HTTP')
-            del proxyCount
-            proxyUrl = "http://user:password@"+randomProxy[0]['address']+':'+str(randomProxy[0]['port'])
-            proxySupport = urllib2.ProxyHandler({'http':proxyUrl})
-            opener = urllib2.build_opener(proxySupport)
+            proxy_count, random_proxy = self.proxyDb.random('HTTP')
+            del proxy_count
+            proxy_url = "http://user:password@"+random_proxy[0]['address']+':'+str(random_proxy[0]['port'])
+            proxy_support = urllib2.ProxyHandler({'http':proxy_url})
+            opener = urllib2.build_opener(proxy_support)
             urllib2.install_opener(opener)
             # Format a request
-            request = urllib2.Request(arrUrl.format(trainCode, date), headers=header)
+            request = urllib2.Request(arrUrl.format(train_code, date), headers=header)
             try:
                 if verify:
                     print urllib2.urlopen('http://icanhazip.com', timeout=4).read()[0:-1]
@@ -140,103 +145,105 @@ class trainArrHook(object):
                 print 'arrHook.py: Error: Request error occurs'
                 print error
                 fail = fail + 1
-                randomProxy[0]['failTimes'] = randomProxy[0]['failTimes'] + 1
+                random_proxy[0]['failTimes'] = random_proxy[0]['failTimes'] + 1
             # write feedback to proxy database.
             finally:
-                randomProxy[0]['connectTimes'] = randomProxy[0]['connectTimes'] + 1
-                self.proxyDb.updateStatus(randomProxy[0]['proxyId'],
-                                          randomProxy[0]['connectTimes'],
-                                          randomProxy[0]['failTimes'])
+                random_proxy[0]['connectTimes'] = random_proxy[0]['connectTimes'] + 1
+                self.proxyDb.updateStatus(random_proxy[0]['proxyId'],
+                                          random_proxy[0]['connectTimes'],
+                                          random_proxy[0]['failTimes'])
                 if res is not None:
                     break
         return res
 
-    def regionGet(self, start, end, trainClass):
+    def region_get(self, start, end, train_class):
         """Get all arrivals in provided region.
            Parameter start and end marks the base and top of region.
         """
         from datetime import date, timedelta
         import time
-        dateTomorrow = date.today() + timedelta(days = 1)
-        regionStatus, trainList = self.trainDb.searchList(start, end, trainClass)
-        print 'arrHook.py: Info: There are {} trains in this region.'.format(regionStatus)
-        for everyTrain in trainList:
-            print 'arrHook.py: Info: We are now import {}.'.format(everyTrain['trainStr'])
-            self.addTrain(everyTrain['trainStr'], dateTomorrow.strftime("%Y-%m-%d"))
+        date_tomorrow = date.today() + timedelta(days=1)
+        region_status, train_list = self.trainDb.searchList(start, end, train_class)
+        print 'arrHook.py: Info: There are {} trains in this region.'.format(region_status)
+        for everyTrain in train_list:
+            print 'arrHook.py: Info: We are now import {}.'.format(everyTrain['train_str'])
+            self.add_train(everyTrain['train_str'], date_tomorrow.strftime("%Y-%m-%d"))
             time.sleep(1)
 
-    def getMissingTrain(self, vacancyTrainFile='vacancyList.json'):
+    def get_missing_train(self, vacancy_train_file='vacancy_list.json'):
         """Add arrivals of failed trains.
            Parameter file name are optional.
         """
         from datetime import date, timedelta
         import time
-        dateTomorrow = date.today() + timedelta(days = 1)
-        with open(vacancyTrainFile, 'r') as fi:
-            vacancyList = json.load(fi)
-        print 'arrHook.py: Info: There are {} trains in this region.'.format(len(vacancyList))
-        for everyTrain in vacancyList:
+        date_tomorrow = date.today() + timedelta(days=1)
+        with open(vacancy_train_file, 'r') as fi:
+            vacancy_list = json.load(fi)
+        print 'arrHook.py: Info: There are {} trains in this region.'.format(len(vacancy_list))
+        for everyTrain in vacancy_list:
             print 'arrHook.py: Info: We are now import [{}].'.format(everyTrain)
-            self.addTrain(everyTrain, dateTomorrow.strftime("%Y-%m-%d"))
+            self.add_train(everyTrain, date_tomorrow.strftime("%Y-%m-%d"))
             time.sleep(1)
 
-
-    def check(self, trainClass, start=0, end=10000):
+    def check(self, train_class, start=0, end=10000):
         """Check the arrival-catching status of every train.
            If the train don't have any arrival, mark it as failed and register to file.
         """
-        regionStatus, trainList = self.trainDb.searchList(start, end, trainClass)
-        print 'arrHook.py: Info: We need to check {} trains.'.format(regionStatus)
-        vacancyList = []
-        for everyTrain in trainList:
-            if not(self.arrivalDb.verifyArrival(everyTrain['trainStr'])):
-                vacancyList.append(everyTrain['trainStr'])
-                print 'arrHook.py: Info: Arrival of {} do not exist.'.format(everyTrain['trainStr'])
+        region_status, train_list = self.trainDb.searchList(start, end, train_class)
+        print 'arrHook.py: Info: We need to check {} trains.'.format(region_status)
+        vacancy_list = []
+        for everyTrain in train_list:
+            if not(self.arrivalDb.verifyArrival(everyTrain['train_str'])):
+                vacancy_list.append(everyTrain['train_str'])
+                print 'arrHook.py: Info: Arrival of {} do not exist.'.format(everyTrain['train_str'])
         
-        with open('vacancyList.json', 'a+') as fo:
-            json.dump(vacancyList, fo)
+        with open('vacancy_list.json', 'a+') as fo:
+            json.dump(vacancy_list, fo)
 
-def writeLog(info, logFile='arrHookLog.txt'):
+
+def write_log(info, log_file='arr_hook_log.txt'):
     import datetime
-    with open(logFile, 'a+') as fo:
+    with open(log_file, 'a+') as fo:
         fo.write(datetime.datetime.now().strftime('%Y%m%d%H%M%S') + ' - ' + info)
 
-def writeBC(trainStr, bcFile='bcTrain.txt'):
-    with open(bcFile, 'a+') as fo:
-        fo.write(trainStr+',')
+
+def write_bc(train_str, bc_file='bc_train.txt'):
+    with open(bc_file, 'a+') as fo:
+        fo.write(train_str+',')
 
 
-class run(object):
+class Run(object):
     
     def __init__(self):
-        self.obj = trainArrHook()
+        self.obj = TrainArrHook()
 
     def add(self):
-        """Add new arrivals in startNum(included) and endNum(included) region.
+        """Add new arrivals in start_num(included) and end_num(included) region.
         """
-        startNum = raw_input('startNum:')
-        endNum = raw_input('endNum:')
-        trainClass = raw_input('trainClass:')
-        self.obj.regionGet(int(startNum), int(endNum), trainClass)
+        start_num = raw_input('start_num:')
+        end_num = raw_input('end_num:')
+        train_class = raw_input('train_class:')
+        self.obj.region_get(int(start_num), int(end_num), train_class)
 
     def check(self):
         """Check arrivals.
         """
-        startNum = raw_input('startNum:')
-        endNum = raw_input('endNum:')
-        trainClass = raw_input('trainClass:')
-        self.obj.check(trainClass, int(startNum), int(endNum))
+        start_num = raw_input('start_num:')
+        end_num = raw_input('end_num:')
+        train_class = raw_input('train_class:')
+        self.obj.check(train_class, int(start_num), int(end_num))
     
-    def addMiss(self):
-        self.obj.getMissingTrain()
+    def add_miss(self):
+        self.obj.get_missing_train()
+
 
 # Run the script.
 if __name__ == "__main__":
     import sys
-    myObj = run()
+    myObj = Run()
     if sys.argv[1] == 'add':
         myObj.add()
     elif sys.argv[1] == 'che':
         myObj.check()
     elif sys.argv[1] == 'ams':
-        myObj.addMiss()
+        myObj.add_miss()
