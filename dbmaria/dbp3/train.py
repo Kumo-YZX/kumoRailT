@@ -101,6 +101,19 @@ class Table(DbBase):
                                      "train_num0": train_num0}])
         return res[0]['COUNT(1)']
 
+    def verify_2nums(self, train_str):
+        """
+        To know if the train_num1 has been updated.
+        If the 2 train_num differ, the function will return true.
+        :param train_str:
+        :return: bool
+        """
+        this_train = self.search("train_str", train_str)
+        if this_train[0]["train_num0"] == this_train[0]["train_num1"]:
+            return True
+        else:
+            return False
+
 # Edited Dec/14/2018: Change Meaningless default value to NONE #
     def delete(self, key=None, value=None):
         """Delete a train.
