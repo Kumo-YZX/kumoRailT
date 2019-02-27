@@ -4,9 +4,11 @@
 # Last Edit: Feb/20/2019 #
 #
 
+
 def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
+
 
 load_module('train', '../dbmaria/dbp3/train.py')
 load_module('trainCode', '../dbmaria/dbp3/trainCode.py')
@@ -23,9 +25,10 @@ web_class = ['G', 'D', 'C', 'Z', 'T', 'K', 'O']
 actual_class = ['G', 'D', 'C', 'Z', 'T', 'K', 'S', 'Y', 'P']
 ipVerify = 1
 trainVer = 1
-header ={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +\
-         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-         "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
+header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " + \
+          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
+
 
 class TrainWebHook(object):
 
@@ -45,7 +48,7 @@ class TrainWebHook(object):
         for everyClass in normalClass:
             self.this_class_fail = []
             # Verify numbers less than 1000
-            for singleBit in range(1,10):
+            for singleBit in range(1, 10):
                 # Send request and get reply using proxy
                 self.req_rep(everyClass + str(singleBit), date_str, 1)
                 print 'trainHook.py: Info: Search for keyWord [{}] done.'.format(everyClass + str(singleBit))
@@ -146,10 +149,10 @@ class TrainWebHook(object):
                     # Insert a new train to train table if it does not exist.
                     else:
                         self.trainDb.insert_base(int(train_number),
-                                                int(train_number),
-                                                train_class,
-                                                '{:0>8}'.format(str(trainVer)+train_class + train_number),
-                                                1)
+                                                 int(train_number),
+                                                 train_class,
+                                                 '{:0>8}'.format(str(trainVer)+train_class + train_number),
+                                                 1)
                         self.codeDb.insert('{:0>8}'.format(str(trainVer)+train_class + train_number),
                                            date_str[0:4]+'-'+date_str[4:6]+'-'+date_str[6:8],
                                            everyNum['train_no'])
@@ -189,8 +192,8 @@ class TrainWebHook(object):
             finally:
                 random_proxy[0]['connect_times'] = random_proxy[0]['connect_times'] + 1
                 self.proxyDb.update_status(random_proxy[0]['proxy_id'],
-                                          random_proxy[0]['connect_times'],
-                                          random_proxy[0]['fail_times'])
+                                           random_proxy[0]['connect_times'],
+                                           random_proxy[0]['fail_times'])
                 if res is not None:
                     break
         return res
@@ -211,15 +214,13 @@ class TrainWebHook(object):
         with open(file_name, 'r') as fi:
             self.all_list = json.load(fi)
 
-
-    def import_form_file(self, date, train_ver=1):
+    def import_form_file(self, train_ver=1):
         """
 
-        :param date:
         :param train_ver:
         :return:
         """
-        if date in self.all_list:
+        for date in self.all_list.keys():
             for every_class in web_class:
                 # Catch the list of specified date and class.
                 train_list = self.all_list[date][every_class]
@@ -274,15 +275,18 @@ class TrainWebHook(object):
                             train_num = int(train_no)
                             actual_num = int(train_str)
                             train_class = 'A'
-                        print("Now: Update: {}, {}".format(actual_num, train_class))
-                        self.trainDb.update_base(actual_num, train_num, train_class)
+                        # The train_num and actual_num are different at this time.
+                        internal_str = '{:0>8}'.format(str(train_ver) + train_class + str(actual_num))
+                        # Verify_2nums function returns true when train_num1 is not updated.
+                        if self.trainDb.verify_2nums(internal_str):
+                            print("Now: Update: {}, {}".format(actual_num, train_class))
+                            self.trainDb.update_base(actual_num, train_num, train_class)
+
 
 def test_import_file():
-    from datetime import date, timedelta
-    my_date = date.today() + timedelta(days=1)
     import_obj = TrainWebHook()
     import_obj.load_local_file()
-    import_obj.import_form_file(my_date.strftime('%Y-%m-%d'))
+    import_obj.import_form_file()
 
 
 class Test(object):
@@ -303,6 +307,7 @@ class Test(object):
             self.my_hook.catch_normal(my_date.strftime('%Y%m%d'))
         else:
             test_import_file()
+
 
 if __name__ == "__main__":
     import sys
