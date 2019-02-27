@@ -1,107 +1,117 @@
-#----------------------------------------------------------------#
 # Module Name: Arrival #
 # Function: Recode a arrival in ARRIVAL table. #
-# Author: Kumo #
-# Last Edit: Dec/24/2018 #
-#----------------------------------------------------------------#
+# Author: Kumo Lam(https://github.com/Kumo-YZX) #
+# Last Edit: Feb/27/2019 #
 
-def loadModule(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadModule('dbmaria', '../dbmaria2.py')
 
-from dbmaria import dbBase
+load_module('dbmaria', '../dbmaria2.py')
+
+from dbmaria import DbBase
 import json
 
-class table(dbBase):
+
+class Table(DbBase):
 
     def __init__(self):
-        dbBase.__init__(self, 'arrival')
+        DbBase.__init__(self, 'arrival')
 
-    def create(self, definitionFile='arrival_definition.json'):
-        with open(definitionFile) as fi:
-            self.createTable(json.load(fi))
+    def create(self, definition_file='arrival_definition.json'):
+        with open(definition_file) as fi:
+            self.create_table(json.load(fi))
 
-    def insert(self, trainStr, staTele, staRank, arrTime, arrDate, depTime, depDate):
+    def insert(self, train_str, sta_tele, sta_rank, arr_time, arr_date, dep_time, dep_date):
         """Insert a arrival to the table.
            All parameters are required.
         """
-        self.insertData({"trainStr":trainStr,
-                         "staTele":staTele,
-                         "staRank":staRank,
-                         "arrTime":arrTime,
-                         "arrDate":arrDate,
-                         "depTime":depTime,
-                         "depDate":depDate
-                         })
+        self.insert_data({"train_str": train_str,
+                          "sta_tele": sta_tele,
+                          "sta_rank": sta_rank,
+                          "arr_time": arr_time,
+                          "arr_date": arr_date,
+                          "dep_time": dep_time,
+                          "dep_date": dep_date
+                          })
 
-    def insertDict(self, paraDict):
+    def insert_dict(self, parameter_dict):
         """Insert data to table directly, using dict directly.
         """
-        self.insertData(paraDict)
+        self.insert_data(parameter_dict)
 
-    def search(self, trainStr=None, staTele=None):
-        """Search for items by its trainStr or staTele.
-           You must choose one or more condition(s) from trainStr and staTele.
+    def search(self, train_str=None, sta_tele=None):
+        """Search for items by its train_str or sta_tele.
+           You must choose one or more condition(s) from train_str and sta_tele.
         """
-        conditionDict = {}
-        if trainStr is not None:
-            conditionDict['trainStr'] = {'judge':'=', 'value':trainStr}
-        if staTele is not None:
-            conditionDict['staTele'] = {'judge':'=', 'value':staTele}
+        condition_dict = {}
+        if train_str is not None:
+            condition_dict['train_str'] = {'judge': '=', 'value': train_str}
+        if sta_tele is not None:
+            condition_dict['sta_tele'] = {'judge': '=', 'value': sta_tele}
 
-        if len(conditionDict):
-            res = self.queryData([conditionDict])
+        if len(condition_dict):
+            res = self.query_data([condition_dict])
         else:
-            res = self.queryData()
+            res = self.query_data()
 
         return len(res), res
 
-    def searchById(self, arrivalId):
-        res = self.queryData([{"arrivalId":{"judge":"=", "value":arrivalId}}])
-        return len(res), res
-
-    def searchLast(self):
-        """Search for the last item in arrival table.
-           Items is sorted by arrivalID.
-           NO parameters required.
+    def search_by_id(self, arrival_id):
         """
-        res = self.queryData([], orderFactor={'arrivalId':'DESC'}, amountLimit=1)
+        Search for arrival data by its ID.
+        :param arrival_id:
+        :return:
+        """
+        res = self.query_data([{"arrival_id": {"judge": "=", "value": arrival_id}}])
         return len(res), res
 
-    def delete(self, trainStr=None):
+    def search_last(self):
+        """
+        Search for the last item in arrival table.
+        Items is sorted by arrivalID.
+        NO parameters required.
+        """
+        res = self.query_data([], orderFactor={'arrival_id': 'DESC'}, amountLimit=1)
+        return len(res), res
+
+    def delete(self, train_str=None):
         """Delete a item/items.
            Parameter are not essential, causing all items deleted.
-           If provided, the item that trainStr mached will be deleted.
+           If provided, the item that train_str matched will be deleted.
         """
-        if trainStr is None:
-            self.deleteData()
+        if train_str is None:
+            self.delete_data()
         else:
-            self.deleteData([{"trainStr":{"judge":"=", "value":trainStr}}])
+            self.delete_data([{"train_str": {"judge": "=", "value": train_str}}])
 
         return 1
 
-    def verifyArrival(self, trainStr=None):
+    def verify_arrival(self, train_str=None):
         """Verify the existence of a item.
            Parameter are not essential, changing the function to void-judgement.
            A json structure like [{'COUNT(1)':amount}] will be returned.
         """
-        if trainStr is None:
-            res = self.verifyExistence([])
+        if train_str is None:
+            res = self.verify_existence([])
         else:
-            res = self.verifyExistence([{"trainStr":{"judge":"=", "value":trainStr}}])
+            res = self.verify_existence([{"train_str": {"judge": "=", "value": train_str}}])
         return res[0]['COUNT(1)']
 
-    def searchJoin(self):
+    def search_join(self):
         """
+        Query for the arrival in Join method.
         """
-        res = self.queryJoin()
+        res = self.query_join()
         return res
 
+
 def init():
-    obj = table()
+    obj = Table()
     obj.create()
+
 
 if __name__ == "__main__":
     init()

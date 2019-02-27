@@ -1,8 +1,8 @@
-[{"varName":"arrivalId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true},
- {"varName":"trainStr", "varType":"VARCHAR(8)", "foreign":{"table":"train", "var":"trainStr"}},
- {"varName":"staTele", "varType":"VARCHAR(3)", "foreign":{"table":"staInfo", "var":"staTele"}},
- {"varName":"staRank", "varType":"TINYINT UNSIGNED"},
- {"varName":"arrTime", "varType":"SMALLINT UNSIGNED"},
- {"varName":"arrDate", "varType":"TINYINT UNSIGNED"},
- {"varName":"depTime", "varType":"SMALLINT UNSIGNED"},
- {"varName":"depDate", "varType":"TINYINT UNSIGNED"}]
+[{"var_name":"arrival_id", "var_type":"INT UNSIGNED", "primary":true, "auto_inc":true},
+ {"var_name":"train_str", "var_type":"VARCHAR(8)", "foreign":{"table":"train", "var":"train_str"}},
+ {"var_name":"sta_tele", "var_type":"VARCHAR(3)", "foreign":{"table":"staInfo", "var":"sta_tele"}},
+ {"var_name":"sta_rank", "var_type":"TINYINT UNSIGNED"},
+ {"var_name":"arr_time", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"arr_date", "var_type":"TINYINT UNSIGNED"},
+ {"var_name":"dep_time", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"dep_date", "var_type":"TINYINT UNSIGNED"}]
