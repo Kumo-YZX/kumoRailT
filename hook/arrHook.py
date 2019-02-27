@@ -11,7 +11,7 @@ def load_module(name, path):
 
 load_module('arrival', '../dbmaria/dbp4/arrival.py')
 load_module('train', '../dbmaria/dbp3/train.py')
-load_module('train_code', '../dbmaria/dbp3/train_code.py')
+load_module('train_code', '../dbmaria/dbp3/trainCode.py')
 load_module('staInfo', '../dbmaria/dbp1/staInfo.py')
 load_module('proxy', '../dbmaria/dbproxy/proxy.py')
 load_module('tool', '../tool/tool.py')
@@ -23,19 +23,19 @@ import json
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
           "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36",
           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
-arrUrl = 'http://mobile.12306.cn/weixin/czxx/queryByTrainNo?train_no={}"+\
-         "&from_station_telecode=BBB&to_station_telecode=BBB&depart_date={}'
+arrUrl = "http://mobile.12306.cn/weixin/czxx/queryByTrainNo?train_no={}" +\
+         "&from_station_telecode=BBB&to_station_telecode=BBB&depart_date={}"
 verify = 1
 
 
 class TrainArrHook(object):
 
     def __init__(self):
-        self.arrivalDb = arrival.table()
-        self.trainDb = train.table()
-        self.codeDb = train_code.table()
-        self.stationDb = staInfo.table()
-        self.proxyDb = proxy.table()
+        self.arrivalDb = arrival.Table()
+        self.trainDb = train.Table()
+        self.codeDb = train_code.Table()
+        self.stationDb = staInfo.Table()
+        self.proxyDb = proxy.Table()
         print 'arrHook.py: Info: trainArrHook Init done.'
 
     def add_train(self, train_str, date):
@@ -49,7 +49,7 @@ class TrainArrHook(object):
         code_status, code_info = self.codeDb.search(train_str, date)
         if code_status:
             # Get arrival data by proxy_get function.
-            raw_arr_data = self.proxy_get(code_info[0]['train_code'], code_info[0]['departDate'])
+            raw_arr_data = self.proxy_get(code_info[0]['train_code'], code_info[0]['depart_date'])
             if raw_arr_data is not None:
                 arr_data = json.loads(raw_arr_data)
                 arr_list = arr_data['data']['data']
@@ -61,17 +61,17 @@ class TrainArrHook(object):
                     # Write every arrival to database.
                     for everyArrival in arr_list:
                         station_status, station_info = \
-                            self.stationDb.search('staCn', everyArrival['station_name'].encode('utf8').encode('hex'))
+                            self.stationDb.search('sta_cn', everyArrival['station_name'].encode('utf8').encode('hex'))
                         if station_status:
                             sta_tele = station_info[0]['sta_tele']
                         else:
                             # The arrive station haven't been recorded.
-                            special_station_count = self.stationDb.verifySpecial(10001)
+                            special_station_count = self.stationDb.verify_special(10001)
                             sta_tele = '{:0>3}'.format(special_station_count+1)
-                            self.stationDb.insert({'staCn': everyArrival['station_name'].encode('utf8').encode('hex'),
+                            self.stationDb.insert({'sta_cn': everyArrival['station_name'].encode('utf8').encode('hex'),
                                                    'sta_tele': sta_tele,
-                                                   'staPy': '0000',
-                                                   'staNum': special_station_count+10001})
+                                                   'sta_py': '0000',
+                                                   'sta_num': special_station_count+10001})
                             print 'INSERT NEW STATION ' + everyArrival['station_name']
                         # print sta_tele
                         # Transfer time into integer format.
@@ -79,7 +79,7 @@ class TrainArrHook(object):
                         dep_time = tool.str2int(everyArrival['start_time'])
 
                         final_list.append({"sta_tele": sta_tele,
-                                           "staRank": int(everyArrival['station_no']),
+                                           "sta_rank": int(everyArrival['station_no']),
                                            "train_str": train_str,
                                            "arr_time": arr_time,
                                            "dep_time": dep_time})
@@ -99,7 +99,7 @@ class TrainArrHook(object):
 
                     # Write them to database.
                     for everyArrival in final_list:
-                        self.arrivalDb.insertDict(everyArrival)
+                        self.arrivalDb.insert_dict(everyArrival)
 
                     write_log('SUCCESS : ' + train_str)
                     print 'arrHook.py: Info: Add arrival successfully.'
@@ -108,7 +108,7 @@ class TrainArrHook(object):
                 time.sleep(1)
             else:
                 # Log failed trains.
-                # But do not write to vancyFile. To check failed trains, please use CHECK function.
+                # But do not write to vacancyFile. To check failed trains, please use CHECK function.
                 write_bc(train_str)
                 write_log('TOO MANY BAD CONNECTIONS : ' + train_str)
                 print 'arrHook.py: Warning: Too many bad connections with [{}].'.format(train_str)
@@ -131,7 +131,7 @@ class TrainArrHook(object):
             proxy_count, random_proxy = self.proxyDb.random('HTTP')
             del proxy_count
             proxy_url = "http://user:password@"+random_proxy[0]['address']+':'+str(random_proxy[0]['port'])
-            proxy_support = urllib2.ProxyHandler({'http':proxy_url})
+            proxy_support = urllib2.ProxyHandler({'http': proxy_url})
             opener = urllib2.build_opener(proxy_support)
             urllib2.install_opener(opener)
             # Format a request
@@ -145,13 +145,13 @@ class TrainArrHook(object):
                 print 'arrHook.py: Error: Request error occurs'
                 print error
                 fail = fail + 1
-                random_proxy[0]['failTimes'] = random_proxy[0]['failTimes'] + 1
+                random_proxy[0]['fail_times'] = random_proxy[0]['fail_times'] + 1
             # write feedback to proxy database.
             finally:
-                random_proxy[0]['connectTimes'] = random_proxy[0]['connectTimes'] + 1
-                self.proxyDb.updateStatus(random_proxy[0]['proxyId'],
-                                          random_proxy[0]['connectTimes'],
-                                          random_proxy[0]['failTimes'])
+                random_proxy[0]['connect_times'] = random_proxy[0]['connect_times'] + 1
+                self.proxyDb.update_status(random_proxy[0]['proxy_id'],
+                                           random_proxy[0]['connect_times'],
+                                           random_proxy[0]['fail_times'])
                 if res is not None:
                     break
         return res
@@ -163,7 +163,7 @@ class TrainArrHook(object):
         from datetime import date, timedelta
         import time
         date_tomorrow = date.today() + timedelta(days=1)
-        region_status, train_list = self.trainDb.searchList(start, end, train_class)
+        region_status, train_list = self.trainDb.search_list(start, end, train_class)
         print 'arrHook.py: Info: There are {} trains in this region.'.format(region_status)
         for everyTrain in train_list:
             print 'arrHook.py: Info: We are now import {}.'.format(everyTrain['train_str'])
@@ -189,11 +189,11 @@ class TrainArrHook(object):
         """Check the arrival-catching status of every train.
            If the train don't have any arrival, mark it as failed and register to file.
         """
-        region_status, train_list = self.trainDb.searchList(start, end, train_class)
+        region_status, train_list = self.trainDb.search_list(start, end, train_class)
         print 'arrHook.py: Info: We need to check {} trains.'.format(region_status)
         vacancy_list = []
         for everyTrain in train_list:
-            if not(self.arrivalDb.verifyArrival(everyTrain['train_str'])):
+            if not(self.arrivalDb.verify_arrival(everyTrain['train_str'])):
                 vacancy_list.append(everyTrain['train_str'])
                 print 'arrHook.py: Info: Arrival of {} do not exist.'.format(everyTrain['train_str'])
         
@@ -220,8 +220,8 @@ class Run(object):
     def add(self):
         """Add new arrivals in start_num(included) and end_num(included) region.
         """
-        start_num = raw_input('start_num:')
-        end_num = raw_input('end_num:')
+        start_num = raw_input('start_num(included):')
+        end_num = raw_input('end_num(not included):')
         train_class = raw_input('train_class:')
         self.obj.region_get(int(start_num), int(end_num), train_class)
 
@@ -241,9 +241,12 @@ class Run(object):
 if __name__ == "__main__":
     import sys
     myObj = Run()
-    if sys.argv[1] == 'add':
+    if len(sys.argv) == 1:
         myObj.add()
-    elif sys.argv[1] == 'che':
-        myObj.check()
-    elif sys.argv[1] == 'ams':
-        myObj.add_miss()
+    else:
+        if sys.argv[1] == 'add':
+            myObj.add()
+        elif sys.argv[1] == 'che':
+            myObj.check()
+        elif sys.argv[1] == 'ams':
+            myObj.add_miss()
