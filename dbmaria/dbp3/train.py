@@ -1,7 +1,7 @@
 # Module Name: Train #
 # Function: Define commands to control items in TRAIN table. #
 # Author: Kumo(https://github.com/Kumo-YZX) #
-# Last Edit: Feb/19/2019 #
+# Last Edit: Mar/07/2019 #
 
 
 def load_module(name, path):
@@ -179,5 +179,26 @@ def initialize():
     obj.create()
 
 
+def export_train():
+    obj = Table()
+    actual_res = []
+    # Catch all trains in GDC class.
+    for train_class in ["G", "D", "C"]:
+        res_status, raw_res = obj.search("train_class", train_class)
+        print("dbmaria/dbp3/train.py:" +
+              " {} Trains in class {} has been exported.".format(len(raw_res), train_class))
+        for every_train in raw_res:
+            actual_res.append(every_train["train_class"] + str(every_train["train_num0"]))
+
+    with open("all_train_list.json", "w+") as fo:
+        json.dump(actual_res, fo)
+
+
 if __name__ == "__main__":
-    initialize()
+    import sys
+    if len(sys.argv) < 2:
+        initialize()
+    else:
+        export_train()
+
+
