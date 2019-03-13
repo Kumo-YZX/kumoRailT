@@ -1,9 +1,8 @@
-#----------------------------------------------------------------#
 # Module Name: Parse #
 # Function: Parse the sentence passed by front server & return reply. #
 # Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Jan/02/2019 #
-#----------------------------------------------------------------#
+# Last Edit: Mar/14/2019 #
+
 
 import hlsearch, chnword
 
@@ -114,7 +113,7 @@ class ParseMsg(object):
            Return value will be in chn format and can be replied to the entype process.
         """
         self.judge_type()
-        high_level_search = hlsearch.hls()
+        high_level_search = hlsearch.Hls()
         # To catch the train_class for some train_number-included queries.
         if self.query_type in [14, 18, 1]:
             if '0' <= self.word[2] <= '9':
@@ -136,7 +135,7 @@ class ParseMsg(object):
             return high_level_search.seqs(train_num, train_class)
         elif self.query_type == 18:
             return high_level_search.arrs(train_num, train_class)
-        elif self.query_type ==  15:
+        elif self.query_type == 15:
             return high_level_search.dbs(self.word[2:])
         elif self.query_type == 1:
             return high_level_search.seqs(train_num, train_class) +\
