@@ -91,7 +91,7 @@ class Table(DbBase):
 def initialize():
     seq_obj = Table()
     seq_obj.create()
-    # seq_obj.import_all()
+    seq_obj.import_all()
 
 
 if __name__ == "__main__":
