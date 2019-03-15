@@ -54,10 +54,10 @@ class EMUinfo(BeautifulSoup):
         item_count = (len(td_list) - 8)/6
         if item_count and len(td_list[4].get_text()) > 4:
             reply = chnword.depotResultAmount.decode('hex') +\
-                    str(item_count) +\
-                    '\n'
+                    str(item_count)
             for item_index in range(item_count):
-                reply = reply +\
+                reply = reply + \
+                        '\n- - - - - -\n' +\
                         chnword.depotEMUType.decode('hex') +\
                         td_list[item_index*8+4].get_text().encode('utf8') +\
                         '\n' +\
@@ -74,8 +74,7 @@ class EMUinfo(BeautifulSoup):
                         td_list[item_index*8+8].get_text().encode('utf8') +\
                         '\n' +\
                         chnword.depotComment.decode('hex') +\
-                        td_list[item_index*8+9].get_text().encode('utf8') +\
-                        '\n- - - - - -\n'
+                        td_list[item_index*8+9].get_text().encode('utf8')
         else:
             reply = chnword.depotNoData.decode('hex')
 
