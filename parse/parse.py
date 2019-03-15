@@ -1,10 +1,18 @@
 # Module Name: Parse #
 # Function: Parse the sentence passed by front server & return reply. #
-# Author: Kumo Lam(github.com/Kumo-YZX) #
+# Author: Kumo Lam (https://github.com/Kumo-YZX) #
 # Last Edit: Mar/16/2019 #
 
 
+def load_module(name, path):
+    import os, imp
+    return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
+
+
+load_module('log', '../dbmaria/dblog/log.py')
+load_module('user', '../dbmaria/dblog/user.py')
 import hlsearch, chnword
+
 
 class ParseMsg(object):
 
@@ -14,6 +22,7 @@ class ParseMsg(object):
         self.user = user
         self.query_type = 0
         self.train_front = ''
+        self.reply = ''
 
     def judge_train_front(self):
         """To determine whether the query word is a single train_number(e.g 'G1001').
@@ -106,10 +115,10 @@ class ParseMsg(object):
             self.query_type = 0
         return 0
 
-    def reply_word(self):
+    def form_reply(self):
         """Format a reply based on provided query word.
            Query-type will be checked by judge_type and judge_train_front function.
-           Return value will be in chn format and can be replied to the entype process.
+           To get the reply word, please use get_reply() method.
         """
         self.judge_type()
         high_level_search = hlsearch.Hls()
@@ -131,32 +140,62 @@ class ParseMsg(object):
 
         # Format replies.
         if self.query_type == 14:
-            return high_level_search.seqs(train_num, train_class)
+            self.reply = high_level_search.seqs(train_num, train_class)
         elif self.query_type == 18:
-            return high_level_search.arrs(train_num, train_class)
+            self.reply = high_level_search.arrs(train_num, train_class)
         elif self.query_type == 15:
-            return high_level_search.dbs(self.word[2:])
+            self.reply = high_level_search.dbs(self.word[2:])
         elif self.query_type == 1:
-            return high_level_search.seqs(train_num, train_class) +\
+            self.reply = high_level_search.seqs(train_num, train_class) +\
                    '\n' + high_level_search.arrs(train_num, train_class)
         elif self.query_type == 12 or self.query_type == 6:
-            return high_level_search.seqs(train_num, train_class) +\
+            self.reply = high_level_search.seqs(train_num, train_class) +\
                    '\n' + high_level_search.arrs(train_num, train_class)
         elif self.query_type == 13:
-            return high_level_search.pss(int(self.word[2:6]))
+            self.reply = high_level_search.pss(int(self.word[2:6]))
         elif self.query_type == 19:
-            return chnword.addtoLateMonitorNotReady.decode('hex')
+            self.reply = chnword.addtoLateMonitorNotReady.decode('hex')
         elif self.query_type == 16:
-            return chnword.viewLateMonitorNotReady.decode('hex')
+            self.reply = chnword.viewLateMonitorNotReady.decode('hex')
         elif 7 <= self.query_type <= 11:
-            return chnword.searchLateHistoryNotReady.decode('hex')
+            self.reply = chnword.searchLateHistoryNotReady.decode('hex')
         else:
-            return chnword.conditionNotExist.decode('hex')
+            self.reply = chnword.conditionNotExist.decode('hex')
+
+    def get_reply(self):
+        """
+        Get the reply word.
+        :return: string
+        """
+        return self.reply
+
+    def log_reply(self):
+        """
+        Log the chat message and reply.
+        Make sure that they are ready.
+        :return:
+        """
+        import log, user
+        import datetime
+        time_mark = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        user_name_here = self.user[0:27]
+        user_table = user.Table()
+        if not user_table.verify(user_name_here):
+            user_table.insert(user_name_here, comment=time_mark+'added')
+            print("parse/parse.py: Info: New user: {} added".format(user_name_here))
+        log_table = log.Table()
+        log_table.insert(user_name_here,
+                         self.word[0:8000].encode('hex'),
+                         self.reply[0:8000].encode('hex'),
+                         time_mark)
+        print("parse/parse.py: Info: New log added with mark: {}".format(time_mark))
 
 
 def test(query_word):
     parse_object = ParseMsg('testUser', query_word)
-    return parse_object.reply_word()
+    parse_object.form_reply()
+    parse_object.log_reply()
+    return parse_object.get_reply()
 
 
 if __name__ == "__main__":

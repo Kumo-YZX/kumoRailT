@@ -74,7 +74,9 @@ class WxHandler(tornado.web.RequestHandler):
                     word = rec_data.Content
                     # The parse object
                     parse_obj = parse.ParseMsg(to_user, word)
-                    content = parse_obj.reply_word()
+                    parse_obj.form_reply()
+                    parse_obj.log_reply()
+                    content = parse_obj.get_reply()
                 else:
                     print 'server.py: Error: wrong format'
                     to_user = rec_data.FromUserName
