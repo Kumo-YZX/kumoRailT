@@ -33,6 +33,7 @@ class EMUinfo(BeautifulSoup):
             print("hook/depotHook.py: Error: Request error occurs")
             print(error)
             status = 0
+        print("hook/depotHook.py: Info: depotHook module loaded: {}".format(number))
         BeautifulSoup.__init__(self, res, features="html.parser")
 
     def get_status(self):

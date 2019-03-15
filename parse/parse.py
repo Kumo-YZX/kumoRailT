@@ -1,11 +1,10 @@
 # Module Name: Parse #
 # Function: Parse the sentence passed by front server & return reply. #
 # Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Mar/14/2019 #
+# Last Edit: Mar/16/2019 #
 
 
 import hlsearch, chnword
-
 
 class ParseMsg(object):
 
@@ -144,7 +143,7 @@ class ParseMsg(object):
             return high_level_search.seqs(train_num, train_class) +\
                    '\n' + high_level_search.arrs(train_num, train_class)
         elif self.query_type == 13:
-            return chnword.depotQueryNotReady.decode('hex')
+            return high_level_search.pss(int(self.word[2:6]))
         elif self.query_type == 19:
             return chnword.addtoLateMonitorNotReady.decode('hex')
         elif self.query_type == 16:

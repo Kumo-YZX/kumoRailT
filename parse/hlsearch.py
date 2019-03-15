@@ -1,7 +1,7 @@
 # Module Name: hlsearch(high-level search) #
 # Function: Connect the database and return info to the parse module. #
-# Author: Kumo Lam(github.com/Kumo-YZX) #
-# Last Edit: Jan/01/2019 #
+# Author: Kumo Lam(https://github.com/Kumo-YZX) #
+# Last Edit: Mar/16/2019 #
 
 
 def load_module(name, path):
@@ -16,10 +16,12 @@ load_module('train', '../dbmaria/dbp3/train.py')
 load_module('seq', '../dbmaria/dbp2/seq.py')
 load_module('depot', '../dbmaria/dbp2/depot.py')
 load_module('tool', '../tool/tool.py')
+load_module('depotHook', '../hook/depotHook.py')
 
 import arrival, staInfo, trainCode, train, seq, depot
 import tool
 import chnword
+import depotHook
 
 
 class Hls(object):
@@ -33,7 +35,7 @@ class Hls(object):
            train_num can be in any(string/integer) format.
            Return value(Reply) is in Chn format.
         """
-        reply = train_class + str(train_num) + ' '
+        reply = train_class.upper() + str(train_num) + ' '
         # Initialize the train/arrival/station table object.
         train_db = train.Table()
         arrival_table = arrival.Table()
@@ -142,10 +144,9 @@ class Hls(object):
 
     def pss(self, emu_no):
         """Search for the information of a EMU train.
-           Not available yet now.
         """
-        print(tool.processEmuno(str(emu_no)))
-        return tool.processEmuno(str(emu_no))
+        search = depotHook.EMUinfo(int(emu_no))
+        return search.form_reply()
 
 
 def test():
