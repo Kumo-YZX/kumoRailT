@@ -1,9 +1,7 @@
-#--------------------------------------------------------------------------------#
 # Module Name: Server.py #
 # Function: The main server process, handle requests and send replies. #
-# Author: Kumo #
-# Last Edit: Jan/07/2019 #
-#--------------------------------------------------------------------------------#
+# Author: Kumo Lam (https://github.com/Kumo-YZX) #
+# Last Edit: Mar/14/2019 #
 
 import tornado.ioloop
 import tornado.web
@@ -11,24 +9,12 @@ import config
 from encrypt.WXBizMsgCrypt import WXBizMsgCrypt
 from wx import reply2, receive
 
-import ptvsd
-
-ptvsdDebug = config.loadPtvsd
-
-# Load the debug progress
-def loadDebug():
-    # Allow other computers to attach to ptvsd at this IP address and port.
-    ptvsd.enable_attach(address=(config.ptvsdDebugAddress, config.ptvsdDebugPort), redirect_output=True)
-
-    # Pause the program until a remote debugger is attached
-    ptvsd.wait_for_attach()
 
 class WxHandler(tornado.web.RequestHandler):
     def get(self):
         """Handle the GET request.
            GET handler is used for the verification of WX server.
         """
-        import json
         print 'server.py: Info: WxHandler: GET request from {}'.format(self.request.remote_ip)
         # Catch structures from request object.
         print 'Timestamp:[{}]'.format(self.get_query_argument('timestamp'))
@@ -36,19 +22,21 @@ class WxHandler(tornado.web.RequestHandler):
         print 'Echostr:[{}]'.format(self.get_query_argument('echostr'))
 
         try:
-            paraList = [config.token, self.get_query_argument('timestamp'), self.get_query_argument('nonce')]
+            para_list = [config.token,
+                         self.get_query_argument('timestamp'),
+                         self.get_query_argument('nonce')]
             sign = self.get_query_argument('signature')
             echo = self.get_query_argument('echostr')
-            paraList.sort()
+            para_list.sort()
 
-            # Conculate hash to verify the signature.
+            # Calculate hash to verify the signature.
             import hashlib
             sha1 = hashlib.sha1()
-            map(sha1.update, paraList)
-            hashCode = sha1.hexdigest()
-            print 'hashCode, signature:' + hashCode, sign
+            map(sha1.update, para_list)
+            hash_code = sha1.hexdigest()
+            print 'server.py: hash_code, signature:' + hash_code, sign
             # Succeed to verify.
-            if hashCode == sign:
+            if hash_code == sign:
                 self.write(echo)
             # Failed to verify.
             else:
@@ -58,75 +46,76 @@ class WxHandler(tornado.web.RequestHandler):
 
     def post(self):
         """Handle the POST request.
-           POST handler is used for formating replies.
+           POST handler is used to format replies.
         """
         print 'server.py: Info: WxHandler: POST request from {}'.format(self.request.remote_ip)
         token = config.token
-        encodingKey = config.encodingkey
-        appid = config.appid
-        encodingkey = config.encodingkey
-        decryptObj = WXBizMsgCrypt(token, encodingKey, appid)
+        encoding_key = config.encodingkey
+        app_id = config.appid
+        decrypt_obj = WXBizMsgCrypt(token, encoding_key, app_id)
         try:
             # Catch parameters from request object.
             stamp = self.get_query_arguments("timestamp")[0]
             nonce = self.get_query_arguments("nonce")[0]
-            msgSign = self.get_query_arguments("msg_signature")[0]
+            msg_sign = self.get_query_arguments("msg_signature")[0]
 
             # Decrypt the message.
-            decStatus, wxData = decryptObj.DecryptMsg(self.request.body, msgSign, stamp, nonce)
-            if decStatus:
+            dec_status, wx_data = decrypt_obj.DecryptMsg(self.request.body, msg_sign, stamp, nonce)
+            if dec_status:
                 print 'server.py: Error: decrypt fail'
                 self.write('server: Error: Decrypt fail')
             else:
-                print 'server.py: Info: wxData:', wxData
-                recData = receive.parse_xml(wxData)
+                print 'server.py: Info: wx_data:', wx_data
+                rec_data = receive.parse_xml(wx_data)
                 from parse import parse, chnword
-                if isinstance(recData, receive.Msg) and recData.MsgType == 'text':
-                    toUser = recData.FromUserName
-                    fromUser = recData.ToUserName
-                    word = recData.Content
+                if isinstance(rec_data, receive.Msg) and rec_data.MsgType == 'text':
+                    to_user = rec_data.FromUserName
+                    from_user = rec_data.ToUserName
+                    word = rec_data.Content
                     # The parse object
-                    parseObj = parse.parseMsg(toUser, word)
-                    content = parseObj.replyWord()
+                    parse_obj = parse.ParseMsg(to_user, word)
+                    content = parse_obj.reply_word()
                 else:
                     print 'server.py: Error: wrong format'
-                    toUser = recData.FromUserName
-                    fromUser = recData.ToUserName
+                    to_user = rec_data.FromUserName
+                    from_user = rec_data.ToUserName
                     content = chnword.imageNotSupported.decode('hex')
                 # Encrypt the message for reply.
-                encryptObj = WXBizMsgCrypt(token, encodingkey, appid)
-                encStatus, replyData = encryptObj.EncryptMsg(reply2.TextMsg(toUser, fromUser, content), nonce, stamp)
-                if encStatus:
-                    self.write('server: Error: Encrypt fail:' + str(encStatus))
+                encrypt_obj = WXBizMsgCrypt(token, encoding_key, app_id)
+                enc_status, reply_data =\
+                    encrypt_obj.EncryptMsg(reply2.TextMsg(to_user, from_user, content), nonce, stamp)
+                if enc_status:
+                    self.write('server: Error: Encrypt fail:' + str(enc_status))
                 else:
-                    self.write(replyData)
+                    self.write(reply_data)
         except IndexError:
             self.write('server: error: some query parameter missing')
+
 
 class PageHandler(tornado.web.RequestHandler):
     def get(self):
         """Handler for debugging the server.
         """
         print 'PageHandler: GET request from {}'.format(self.request.remote_ip)
-        self.write({"httpstatus":200, "msg":"ok", "method":"get"})
+        self.write({"httpstatus": 200, "msg": "ok", "method": "get"})
 
     def post(self):
         """Handler for debugging the server.
         """
         print 'PageHandler: POST request from {}'.format(self.request.remote_ip)
-        self.write({"httpstatus":200, "msg":"ok", "method":"post"})
+        self.write({"httpstatus": 200, "msg": "ok", "method": "post"})
 
-def startApp():
+
+def start_app():
     return tornado.web.Application([
         (config.pageHandlerUrl, PageHandler),
         (config.wxHandlerUrl, WxHandler)
     ])
 
+
 if __name__ == "__main__":
-    if ptvsdDebug:
-        loadDebug()
-    app = startApp()
-    app.listen(address = "0.0.0.0", port = config.listenPort)
+    app = start_app()
+    app.listen(address="0.0.0.0", port=config.listenPort)
     tornado.ioloop.IOLoop.current().start()
 
 
