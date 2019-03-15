@@ -92,7 +92,7 @@ class Table(DbBase):
         """Verify the existence of marked special data.
            Amount of this stations(a number) will be returned.
         """
-        res = self.verifyExistence([{'sta_num': {'judge': '>=', 'value': sta_num}}])
+        res = self.verify_existence([{'sta_num': {'judge': '>=', 'value': sta_num}}])
         return res[0]['COUNT(1)']
 
 
