@@ -30,18 +30,20 @@ class Table(DbBase):
         with open(definition_file) as fi:
             self.create_table(json.load(fi))
 
-    def insert(self, user_name, message, reply):
+    def insert(self, user_name, message, reply, time_mark):
         """
         Insert a record item.
         Make sure the user exists!
-        :param user_name:
-        :param message:
-        :param reply:
+        :param user_name: string
+        :param message: string
+        :param reply: string
+        :param time_mark: string
         :return: None
         """
         self.insert_data({"user_name": user_name[0:28],
                           "message": message,
-                          "reply": reply})
+                          "reply": reply,
+                          "time_mark": time_mark})
 
     def search(self, user_name):
         """
@@ -52,6 +54,15 @@ class Table(DbBase):
         :return: Int, List
         """
         res = self.query_data([{"user_name": user_name}])
+        return len(res), res
+
+    def search_by_time(self, time_mark):
+        """
+        Search for logs with specified time mark.
+        :param time_mark: string
+        :return: Int, List
+        """
+        res = self.query_data([{"time_mark": time_mark}])
         return len(res), res
 
     def delete(self, user_name=None):

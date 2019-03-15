@@ -1,4 +1,5 @@
 [{"var_name":"log_id", "var_type":"INT UNSIGNED", "primary":true, "auto_inc": true},
  {"var_name":"user_name", "var_type":"VARCHAR(28)", "foreign":{"table":"user", "var":"user_name"}},
  {"var_name":"message", "var_type":"VARCHAR(8000)"},
- {"var_name":"reply", "var_type":"VARCHAR(8000)"}]
+ {"var_name":"reply", "var_type":"VARCHAR(8000)"},
+ {"var_name":"time_mark", "var_type":"VARCHAR(14)"}]
