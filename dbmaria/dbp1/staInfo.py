@@ -85,8 +85,8 @@ class Table(DbBase):
            Parameter is the sta_tele of the item.
            Nothing will be returned.
         """
-        self.updateData({"sele_sta": status},
-                        [{"sta_tele": sta_tele}])
+        self.update_data({"sele_sta": status},
+                         [{"sta_tele": sta_tele}])
 
     def verify_special(self, sta_num):
         """Verify the existence of marked special data.
