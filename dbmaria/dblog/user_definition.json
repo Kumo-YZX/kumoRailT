@@ -1,0 +1,3 @@
+[{"var_name":"user_name", "var_type":"VARCHAR(28)"},
+ {"var_name":"identity", "var_type":"VARCHAR(1)"},
+ {"var_name":"comment", "var_type":"VARCHAR(16)"}]
