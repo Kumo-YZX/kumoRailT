@@ -1,82 +1,117 @@
-#----------------------------------------------------------------#
-# Module Name: ActArr #
-# Function: Record the actucal status of an arrival. #
-# Author: Kumo #
-# Last Edit: Dec/24/2018 #
-#----------------------------------------------------------------#
+# Module Name: ActArr
+# Function: Record the actual status of an arrival.
+# Author: Kumo Lam (https://github.com/Kumo-YZX)
+# Last Edit: Mar/17/2019 #
+#
 
-def loadMoudle(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadMoudle('dbmaria', '../dbmaria2.py')
-loadMoudle('arrival', '../dbp4/arrival.py')
-loadMoudle('subArr', 'subArr.py')
 
-from dbmaria import dbBase
+load_module('dbmaria', '../dbmaria2.py')
+load_module('arrival', '../dbp4/arrival.py')
+load_module('subArr', 'subArr.py')
+
+from dbmaria import DbBase
 import arrival, subArr
 import json
 
-class table(dbBase):
+
+class Table(DbBase):
 
     def __init__(self):
-        dbBase.__init__(self, 'actArr')
+        DbBase.__init__(self, 'actArr')
 
-    def create(self, definitionFile="actArr_definition.json"):
+    def create(self, definition_file="actArr_definition.json"):
         """Create an actArr table.
         """
-        with open(definitionFile) as fi:
-            self.createTable(json.load(fi))
+        with open(definition_file) as fi:
+            self.create_table(json.load(fi))
 
-    def new(self, subArrId, theDate):
+    def new(self, sub_arr_id, the_date):
         """add a new log to actArr table with no data.
-           subArrId must be a int marking a subArr data, or an error will be raised.
-           today must be a date
+           sub_arr_id must be a int marking a subArr data, or an error will be raised.
+           The date must be a date object.
         """
         import datetime
-        subArrDB = subArr.table()
-        subArrStatus, subArrInfo = subArrDB.searchById(subArrId)
-        scheduleDate = theDate + datetime.timedelta(days = subArrInfo[0]["scheduleDate"])
-        if subArrStatus:
-            self.insertData({"subArrId":subArrId,
-                             "scheduleDate":scheduleDate.strftime("%Y-%m-%d"),
-                             "scheduleTime":subArrInfo[0]["scheduleTime"],
-                             "delay":0,
-                             "queryMark":0})
+        sub_arr_db = subArr.Table()
+        sub_arr_status, sub_arr_info = sub_arr_db.search_by_id(sub_arr_id)
+        schedule_date = the_date +\
+                        datetime.timedelta(days=sub_arr_info[0]["schedule_date"]-1)
+        if sub_arr_status:
+            self.insert_data({"sub_arr_id": sub_arr_id,
+                              "schedule_date": schedule_date.strftime("%Y-%m-%d"),
+                              "schedule_time": sub_arr_info[0]["schedule_time"],
+                              "delay": 0,
+                              "query_mark": 0})
         else:
             raise IndexError('subArr do not exist!')
 
-    def catch(self, theDate, theTime):
+    def catch(self, the_date, the_time):
         """Get void log with a specified date and a up(no more than) limit time.
-           theDate can be in string format.
-           theTime must be in intager format.
+           the_date must be a date object.
+           the_time must be a integer.
         """
-        catchInfo = self.queryData([{"scheduleDate":{"judge":'=', "value":theDate},
-                                     "scheduleTime":{"judge":'<=', "value":theTime},
-                                     "queryMark":{"judge":'=', "value":0}}])
-        return len(catchInfo), catchInfo
+        catch_info = self.query_data([{"schedule_date":
+                                       {"judge": '=', "value": the_date.strftime("%Y-%m-%d")},
+                                       "schedule_time":
+                                       {"judge": '<=', "value": the_time},
+                                       "query_mark": {"judge": '=', "value": 0}}])
+        return len(catch_info), catch_info
 
-    def write(self, actArrId, delay, updateMark=0):
+    def write(self, act_arr_id, delay, update_mark=0):
         """Write data to an unmarked log.
-           The actArrId parameter must be a int marking an existing log.
-           The updateMark parameter should be 1 if you want to finish monitoring.
-           The delay parameter marks the delay time (minus menas train is ahead of time.)
+           The act_arr_id parameter must be a int marking an existing log.
+           The update_mark parameter should be 1 if you want to finish monitoring.
+           The delay parameter marks the delay time (minus means train is ahead of time.)
         """
-        if updateMark:
-            self.updateData({"queryMark":1, "delay":delay}, [{"actArrId":{"judge":'=', "value":actArrId}}])
+        if update_mark:
+            self.update_data({"query_mark": 1, "delay": delay},
+                             [{"act_arr_id": {"judge": '=', "value": act_arr_id}}])
         else:
-            self.updateData({"delay":delay}, [{"actArrId":{"judge":'=', "value":actArrId}}])
+            self.update_data({"delay": delay},
+                             [{"act_arr_id": {"judge": '=', "value": act_arr_id}}])
 
-    def search(self, subArrId):
+    def search(self, sub_arr_id):
         """Search for details of a sheet of actArr.
-           subArrId must be a int.
+           sub_arr_id must be a int.
         """
-        searchInfo = self.queryData([], [{"subArrId":{"judge":'=', "value":subArrId}}])
-        return len(searchInfo), searchInfo
+        search_info = self.query_data([{"sub_arr_id": {"judge": '=', "value": sub_arr_id}}])
+        return len(search_info), search_info
 
-def initilize():
-    actArrObj = table()
-    actArrObj.create()
+
+def initialize():
+    act_arr_obj = Table()
+    act_arr_obj.create()
+
+
+def test():
+    import datetime
+    act_arr_obj = Table()
+    day_today = datetime.datetime.today()
+    day_after_tomorrow = day_today + datetime.timedelta(days=2)
+    act_arr_obj.new(3, day_today)
+    act_arr_obj.new(5, day_today)
+    act_arr_obj.new(3, day_today + datetime.timedelta(days=2))
+    act_arr_obj.new(5, day_today + datetime.timedelta(days=2))
+
+    print(act_arr_obj.search(3))
+    print(act_arr_obj.search(5))
+
+    print(act_arr_obj.catch(day_today, 1440))
+    print(act_arr_obj.catch(day_after_tomorrow, 1440))
+
+    act_arr_obj.write(1, 8, 1)
+    print(act_arr_obj.catch(day_today, 1440))
+    print(act_arr_obj.search(3))
+    print(act_arr_obj.search(5))
+
 
 if __name__ == "__main__":
-    initilize()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        test()
+    else:
+        initialize()

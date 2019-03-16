@@ -1,6 +1,6 @@
-[{"varName":"actArrId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true},
- {"varName":"subArrId", "varType":"INT UNSIGNED", "foreign":{"table":"subArr", "var":"subArrId"}},
- {"varName":"scheduleDate", "varType":"DATE"},
- {"varName":"scheduleTime", "varType":"SMALLINT UNSIGNED"},
- {"varName":"delay", "varType":"SMALLINT UNSIGNED"},
- {"varName":"queryMark", "varType":"BOOLEAN"}]
+[{"var_name":"act_arr_id", "var_type":"INT UNSIGNED", "primary":true, "auto_inc":true},
+ {"var_name":"sub_arr_id", "var_type":"INT UNSIGNED", "foreign":{"table":"subArr", "var":"sub_arr_id"}},
+ {"var_name":"schedule_date", "var_type":"DATE"},
+ {"var_name":"schedule_time", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"delay", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"query_mark", "var_type":"BOOLEAN"}]
