@@ -1,99 +1,135 @@
-#----------------------------------------------------------------#
 # Module Name: SubArr #
 # Function: Create SubArr set for monitor process. #
-# Author: Kumo #
-# Last Edit: Dec/24/2018 #
-#----------------------------------------------------------------#
+# Author: Kumo Lam (https://github.com/Kumo-YZX)#
+# Last Edit: Mar/17/2019 #
 
-def loadMoudle(name, path):
+
+def load_module(name, path):
     import os, imp
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), path))
 
-loadMoudle('dbmaria', '../dbmaria2.py')
-loadMoudle('arrival', '../dbp4/arrival.py')
 
-from dbmaria import dbBase
+load_module('dbmaria', '../dbmaria2.py')
+load_module('arrival', '../dbp4/arrival.py')
+
+from dbmaria import DbBase
 import arrival
 import json
 
-class table(dbBase):
+
+class Table(DbBase):
 
     def __init__(self):
-        dbBase.__init__(self, 'subArr')
+        DbBase.__init__(self, 'subArr')
 
-    def create(self, definitionFile='subArr_definition.json'):
-        with open(definitionFile) as fi:
-            self.createTable(json.load(fi))
+    def create(self, definition_file='subArr_definition.json'):
+        with open(definition_file) as fi:
+            self.create_table(json.load(fi))
 
-    def insFromArr(self, arrivalId, category=0):
+    def import_arr(self, arrival_id, category=0):
         """Copy a arrival data to subArr table.
            category marks departure/arrival. 
         """
-        arrivalObj = arrival.table()
-        arrivalStatus, arrivalInfo = arrivalObj.searchById(arrivalId)
-        if arrivalStatus:
+        arrival_obj = arrival.Table()
+        arrival_status, arrival_info = arrival_obj.search_by_id(arrival_id)
+        if arrival_status:
             if category:
-                self.insertData({"arrivalId":arrivalInfo[0]["arrivalId"],
-                                 "staTele":arrivalInfo[0]["staTele"],
-                                 "staRank":arrivalInfo[0]["staRank"],
-                                 "category":1,
-                                 "scheduleDate":arrivalInfo[0]["depDate"],
-                                 "scheduleTime":arrivalInfo[0]["depTime"],
-                                 "trainStr":arrivalInfo[0]["trainStr"],
-                                 "status":1})
+                self.insert_data({"arrival_id": arrival_info[0]["arrival_id"],
+                                  "sta_tele": arrival_info[0]["sta_tele"],
+                                  "sta_rank": arrival_info[0]["sta_rank"],
+                                  "category": 1,
+                                  "schedule_date": arrival_info[0]["dep_date"],
+                                  "schedule_time": arrival_info[0]["dep_time"],
+                                  "train_str": arrival_info[0]["train_str"],
+                                  "status": 1})
             else:
-                self.insertData({"arrivalId":arrivalInfo[0]["arrivalId"],
-                                 "staTele":arrivalInfo[0]["staTele"],
-                                 "staRank":arrivalInfo[0]["staRank"],
-                                 "category":0,
-                                 "scheduleDate":arrivalInfo[0]["arrDate"],
-                                 "scheduleTime":arrivalInfo[0]["arrTime"],
-                                 "trainStr":arrivalInfo[0]["trainStr"],
-                                 "status":1})
+                self.insert_data({"arrival_id": arrival_info[0]["arrival_id"],
+                                  "sta_tele": arrival_info[0]["sta_tele"],
+                                  "sta_rank": arrival_info[0]["sta_rank"],
+                                  "category": 0,
+                                  "schedule_date": arrival_info[0]["arr_date"],
+                                  "schedule_time": arrival_info[0]["arr_time"],
+                                  "train_str": arrival_info[0]["train_str"],
+                                  "status": 1})
 
-    def unable(self, trainStr):
+    def unable(self, train_str):
         """Set status to 0 so that it will not be monitored.
         """
-        self.updateData({"status":0}, [{"trainStr":{"judge":'=', "value":trainStr}}])
+        self.update_data({"status": 0},
+                         [{"train_str": {"judge": '=', "value": train_str}}])
 
-    def catch(self, needStatus=1):
-        """Query for all effective subArrs, only subArrId returned.
-           The needStatus parameter decides whether useless subArr will be returned.
+    def catch(self, need_status=1):
+        """Query for all effective subArrs, only sub_arr_id returned.
+           The need_status parameter decides whether useless subArr will be returned.
            Only the ID column will be returned.
         """
-        if needStatus:
-            queryInfo = self.queryData([{"status":{"judge":'=', "value":1}}], ["subArrId"])
+        if need_status:
+            query_info = self.query_data([{"status": {"judge": '=', "value": 1}}],
+                                         ["sub_arr_id"])
         else:
-            queryInfo = self.queryData(columnList=["subArrId"])
-        return len(queryInfo), queryInfo
+            query_info = self.query_data(columnList=["sub_arr_id"])
+        return len(query_info), query_info
 
-    def delete(self, trainStr):
-        self.deleteData([{"trainStr":trainStr}])
+    def delete(self, train_str):
+        self.delete_data([{"train_str": train_str}])
 
-    def searchById(self, subArrId):
+    def search_by_id(self, sub_arr_id):
         """Search for a subArr data with its Id.
-           The subArrId parameter must be an integer.
+           The sub_arr_id parameter must be an integer.
         """
-        arrInfo = self.queryData([{"subArrId":{"judge":'=', "value":subArrId}}])
-        return len(arrInfo), arrInfo
+        arr_info = self.query_data([{"sub_arr_id": {"judge": '=', "value": sub_arr_id}}])
+        return len(arr_info), arr_info
+
 
 def initialize():
-    obj = table()
+    obj = Table()
     obj.create()
 
-def add():
-    arrivalId = int(raw_input("arrivalId:"))
-    categoryNum = int(raw_input("category:"))
-    obj = table()
-    obj.insFromArr(arrivalId, categoryNum)
+
+def add_by_id():
+    arrival_id = int(raw_input("arrival_id: "))
+    category_num = int(raw_input("category: "))
+    obj = Table()
+    obj.import_arr(arrival_id, category_num)
+
+
+def add_by_train():
+    train_str = raw_input("train_str: ")
+    category_num = int(raw_input("category: "))
+    import arrival
+    arrival_search = arrival.Table()
+    arrival_status, arrival_list = arrival_search.search(train_str=train_str)
+    if arrival_status:
+        arrival_list = arrival_list[1:]
+        obj = Table()
+        for every_arrival in arrival_list:
+            obj.import_arr(every_arrival['arrival_id'], category_num)
+            print("dbmaria/dbp5/subArr.py: Info: " +
+                  "Import arrival: {}".format(every_arrival['arrival_id']))
+    else:
+        print("dbmaria/dbp5/subArr.py: Warning: No arrival data found.")
+
+
+def test():
+    obj = Table()
+    print(obj.catch())
+    obj.unable('001G1001')
+    print(obj.catch())
+
+    obj.delete('001G6001')
+    print(obj.catch())
+
+    print(obj.search_by_id(2))
+
 
 if __name__ == "__main__":
     import sys
-    if sys.argv[1] == 'add':
-        add()
+    if len(sys.argv) > 1 and sys.argv[1] == 'add1':
+        add_by_id()
+    elif len(sys.argv) > 1 and sys.argv[1] == 'add2':
+        add_by_train()
+    elif len(sys.argv) > 1 and sys.argv[1] == 'test':
+         test()
     else:
         initialize()
-
-
-
 

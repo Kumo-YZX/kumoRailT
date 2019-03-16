@@ -1,9 +1,9 @@
-[{"varName":"subArrId", "varType":"INT UNSIGNED", "primary":true, "auto_inc":true},
- {"varName":"arrivalId", "varType":"INT UNSIGNED", "foreign":{"table":"arrival", "var":"arrivalId"}},
- {"varName":"staTele", "varType":"VARCHAR(3)"},
- {"varName":"staRank", "varType":"TINYINT UNSIGNED"},
- {"varName":"category", "varType":"BOOLEAN"},
- {"varName":"scheduleDate", "varType":"TINYINT UNSIGNED"},
- {"varName":"scheduleTime", "varType":"SMALLINT UNSIGNED"},
- {"varName":"trainStr", "varType":"VARCHAR(8)"},
- {"varName":"status", "varType":"BOOLEAN"}]
+[{"var_name":"sub_arr_id", "var_type":"INT UNSIGNED", "primary":true, "auto_inc":true},
+ {"var_name":"arrival_id", "var_type":"INT UNSIGNED", "foreign":{"table":"arrival", "var":"arrival_id"}},
+ {"var_name":"sta_tele", "var_type":"VARCHAR(3)"},
+ {"var_name":"sta_rank", "var_type":"TINYINT UNSIGNED"},
+ {"var_name":"category", "var_type":"BOOLEAN"},
+ {"var_name":"schedule_date", "var_type":"TINYINT UNSIGNED"},
+ {"var_name":"schedule_time", "var_type":"SMALLINT UNSIGNED"},
+ {"var_name":"train_str", "var_type":"VARCHAR(8)"},
+ {"var_name":"status", "var_type":"BOOLEAN"}]
