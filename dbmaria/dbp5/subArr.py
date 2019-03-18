@@ -28,7 +28,7 @@ class Table(DbBase):
 
     def import_arr(self, arrival_id, category=0):
         """Copy a arrival data to subArr table.
-           category marks departure/arrival. 
+           category marks departure(1)/arrival(0).
         """
         arrival_obj = arrival.Table()
         arrival_status, arrival_info = arrival_obj.search_by_id(arrival_id)
@@ -95,7 +95,7 @@ def add_by_id():
 
 def add_by_train():
     train_str = raw_input("train_str: ")
-    category_num = int(raw_input("category: "))
+    category_num = int(raw_input("category(dep:1/arr:0): "))
     import arrival
     arrival_search = arrival.Table()
     arrival_status, arrival_list = arrival_search.search(train_str=train_str)
