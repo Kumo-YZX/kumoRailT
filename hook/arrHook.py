@@ -191,14 +191,18 @@ class TrainArrHook(object):
         """
         region_status, train_list = self.trainDb.search_list(start, end, train_class)
         print 'arrHook.py: Info: We need to check {} trains.'.format(region_status)
+        not_exist_num = 0
         vacancy_list = []
         for everyTrain in train_list:
             if not(self.arrivalDb.verify_arrival(everyTrain['train_str'])):
                 vacancy_list.append(everyTrain['train_str'])
+                not_exist_num += 1
                 print 'arrHook.py: Info: Arrival of {} do not exist.'.format(everyTrain['train_str'])
         
         with open('vacancy_list.json', 'a+') as fo:
             json.dump(vacancy_list, fo)
+
+        print("hook/arrHook.py: {} trains do not exist.".format(not_exist_num))
 
 
 def write_log(info, log_file='arr_hook_log.txt'):
