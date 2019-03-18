@@ -2,6 +2,7 @@
 # Function: Search for proxy that are available. #
 # Author: Kumo Lam(https://github.com/Kumo-YZX) #
 # Last Edit: Feb/19/2019 #
+# Note: Need to add a function to judge and update Availability
 
 
 def load_module(name, path):
@@ -10,20 +11,18 @@ def load_module(name, path):
 
 
 load_module('proxy', '../dbmaria/dbproxy/proxy.py')
+load_module('config', '../config.py')
 
-test_url = 'https://search.12306.cn/search/v1/train/search?keyword=z1&date=20181228'
-
-import proxy 
-
+import proxy
+import config
 from bs4 import BeautifulSoup
 import re
 import urllib2
 import json
 import socket, httplib
 
-header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +\
-          "(KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
+header = config.header
+test_url = config.proxy_test_url
 
 
 class ProxyData(object):
@@ -87,7 +86,7 @@ class ProxyData(object):
                 ip_str = urllib2.urlopen('http://icanhazip.com', timeout=4).read()[0:-1]
                 print(ip_str)
                 if ip_str == self._proxy_list[proxy_no]['address']:
-                    print(urllib2.urlopen(request, timeout=8).read()[110:180])
+                    print(urllib2.urlopen(request, timeout=8).read()[0:180])
                     self._verify_list.append(self._proxy_list[proxy_no])
                     if self.proxyDb.verify(self._proxy_list[proxy_no]['address'], self._proxy_list[proxy_no]['port']):
                         print('proxyHook.py: Info: This proxy already exists.')

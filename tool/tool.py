@@ -26,3 +26,37 @@ def correctClass(trainClass):
         return 'DJ'
     else:
         return trainClass[0]
+
+
+# transfer Chinese string to utf8 code in urls
+def encode_utf(chn_str):
+    reply_str = ''
+    with open('temporary.txt', 'w') as fw:
+        fw.write(chn_str.encode('utf8'))
+    with open('temporary.txt', 'rb') as fi:
+        fi.seek(0.0)
+        while True:
+            byte = fi.read(1)
+            if byte == '':
+                break
+            else:
+                gbk = byte.encode('hex')
+                reply_str = reply_str + '-' + gbk.upper()
+    return reply_str
+
+
+# transfer Chinese string to gbk code in urls
+def encode_gbk(chn_str):
+    reply_str = ''
+    with open('temporary.txt', 'w') as fw:
+        fw.write(chn_str.encode('gbk'))
+    with open('temporary.txt', 'rb') as fi:
+        fi.seek(0.0)
+        while True:
+            byte = fi.read(1)
+            if byte == '':
+                break
+            else:
+                gbk = byte.encode('hex')
+                reply_str = reply_str + '%' + gbk.upper()
+    return reply_str
