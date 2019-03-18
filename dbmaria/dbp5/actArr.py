@@ -49,6 +49,17 @@ class Table(DbBase):
         else:
             raise IndexError('subArr do not exist!')
 
+    def verify(self):
+        """
+        Verify if today's log table is created.
+        The amount of today's logs will be returned.
+        :return: Integer
+        """
+        import datetime
+        date_today = datetime.datetime.today().strftime("%Y-%m-%d")
+        res = self.verify_existence([{"schedule_date": date_today}])
+        return res[0]['COUNT(1)']
+
     def catch(self, the_date, the_time):
         """Get void log with a specified date and a up(no more than) limit time.
            the_date must be a date object.
