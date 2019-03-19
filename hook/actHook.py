@@ -84,8 +84,15 @@ class Hook(object):
         # These arrivals are too early to get any information.
         # Essential ???
         # Do not give up any arrival and they will be found finally...
+        for every_arr in today_arr_info:
+            if every_arr["schedule_time"] < deadline - 65:
+                self.actdb.write(every_arr["act_arr_id"],
+                                 delay=every_arr["delay"],
+                                 update_mark=1)
+                del every_arr
+
         for every_arr in yesterday_arr_info:
-            if every_arr["schedule_time"] < 1380:
+            if every_arr["schedule_time"] < 1380 or deadline > 65:
                 self.actdb.write(every_arr["act_arr_id"],
                                  delay=every_arr["delay"],
                                  update_mark=1)
