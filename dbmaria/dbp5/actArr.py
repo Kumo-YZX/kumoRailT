@@ -92,6 +92,19 @@ class Table(DbBase):
         search_info = self.query_data([{"sub_arr_id": {"judge": '=', "value": sub_arr_id}}])
         return len(search_info), search_info
 
+    def search_latest(self, sub_arr_id):
+        """
+        Search for the latest Actual Arrival data of specified Sub-Arr.
+        :param sub_arr_id:
+        :return: Integer, List
+        """
+        search_info = self.query_data([{"sub_arr_id": {"judge": '=', "value": sub_arr_id}}],
+                                      order_factor="act_arr_id desc",
+                                      amount_limit=1)
+        if len(search_info):
+            return len(search_info), search_info[0]
+        else:
+            return 0, []
 
 def initialize():
     act_arr_obj = Table()
