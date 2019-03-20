@@ -99,12 +99,13 @@ class Table(DbBase):
         :return: Integer, List
         """
         search_info = self.query_data([{"sub_arr_id": {"judge": '=', "value": sub_arr_id}}],
-                                      order_factor="act_arr_id desc",
+                                      order_factor={"act_arr_id": "DESC"},
                                       amount_limit=1)
         if len(search_info):
             return len(search_info), search_info[0]
         else:
             return 0, []
+
 
 def initialize():
     act_arr_obj = Table()

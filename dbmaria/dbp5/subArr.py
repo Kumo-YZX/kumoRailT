@@ -89,12 +89,12 @@ class Table(DbBase):
             query_info = self.query_data([{"status": {"judge": "=", "value": 1},
                                           "train_str": {"judge": "=", "value": train_str}}],
                                          column_list=["sub_arr_id", "arrival_id"],
-                                         order_factor="sta_rank desc",
+                                         order_factor={"sta_rank": "DESC"},
                                          amount_limit=amount_limit)
         else:
             query_info = self.query_data([{"train_str": {"judge": "=", "value": train_str}}],
                                          column_list=["sub_arr_id", "arrival_id"],
-                                         order_factor="sta_rank desc",
+                                         order_factor={"sta_rank": "DESC"},
                                          amount_limit=amount_limit)
         return len(query_info), query_info
 
