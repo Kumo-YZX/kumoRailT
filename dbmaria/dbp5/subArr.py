@@ -58,17 +58,62 @@ class Table(DbBase):
         self.update_data({"status": 0},
                          [{"train_str": {"judge": '=', "value": train_str}}])
 
-    def catch(self, need_status=1):
+    def catch(self, need_status=1, amount_limit=None):
         """Query for all effective subArrs, only sub_arr_id returned.
            The need_status parameter decides whether useless subArr will be returned.
-           Only the ID column will be returned.
+           Only the ID column will be returned as list of dicts with key: sub_arr_id.
+        :param need_status: Bool
+        :param amount_limit: Integer
+        :return: Integer, List
         """
         if need_status:
             query_info = self.query_data([{"status": {"judge": '=', "value": 1}}],
-                                         ["sub_arr_id"])
+                                         column_list=["sub_arr_id"],
+                                         amount_limit=amount_limit)
         else:
-            query_info = self.query_data(columnList=["sub_arr_id"])
+            query_info = self.query_data(column_list=["sub_arr_id"],
+                                         amount_limit=amount_limit)
         return len(query_info), query_info
+
+    def catch_by_train(self, train_str, need_status=1, amount_limit=None):
+        """
+        Catch specified sub_arr marked by their train_str.
+        Amount of sub_arr and the list contains all sub_arr_id will be returned.
+        Return value will be a list of dicts with key: sub_arr_id.
+        :param train_str: String
+        :param need_status: Bool
+        :param amount_limit: Integer
+        :return: Integer, List
+        """
+        if need_status:
+            query_info = self.query_data([{"status": {"judge": "=", "value": 1},
+                                          "train_str": {"judge": "=", "value": train_str}}],
+                                         column_list=["sub_arr_id"],
+                                         amount_limit=amount_limit)
+        else:
+            query_info = self.query_data([{"train_str": {"judge": "=", "value": train_str}}],
+                                         column_list=["sub_arr_id"],
+                                         amount_limit=amount_limit)
+        return len(query_info), query_info
+
+    def train_list(self, need_status=1):
+        """
+        Get train_str parameter of every arrival.
+        A list contains all train_str will be returned.
+        If need_status is set to 1, useless arrivals will be ignored.
+        :param: need_status: Integer
+        :return: List
+        """
+        if need_status:
+            query_info = self.query_data([{"status": {"judge": '=', "value": 1}}],
+                                         column_list=["train_str"])
+        else:
+            query_info = self.query_data(column_list=["train_str"])
+        train_list = []
+        for every_arr in query_info:
+            if every_arr["train_str"] not in train_list:
+                train_list.append(every_arr["train_str"])
+        return train_list
 
     def delete(self, train_str):
         self.delete_data([{"train_str": train_str}])
