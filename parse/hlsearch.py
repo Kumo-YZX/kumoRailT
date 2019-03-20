@@ -27,6 +27,8 @@ import tool
 import chnword
 import depotHook
 
+actual_class = ['G', 'D', 'C', 'Z', 'T', 'K', 'S', 'Y', 'P']
+
 
 class Hls(object):
 
@@ -172,7 +174,6 @@ class Hls(object):
                 res_str = res_str + train_detail["train_class"]
                 # Form the train number
                 if train_detail["train_num0"] == train_detail["train_num1"]:
-
                     res_str += str(train_detail["train_num0"])
                 # The train has 2 train numbers.
                 else:
@@ -190,9 +191,67 @@ class Hls(object):
             res_str += ' '
         return res_str
 
+    def was(self, train_num):
+        """
+        Search for latest actual arrival data of a train.
+        Train_num must be in class-num format! (For example: "Z133")
+        Reply string will be returned.
+        :param train_num:
+        :return: String
+        """
+        train_db = train.Table()
+        if train_num[0].upper() in actual_class:
+            train_status, train_detail =\
+                train_db.search_single(train_num[0].upper(),
+                                       int(train_num[1:5]))
+        else:
+            train_status, train_detail = \
+                train_db.search_single('A', int(train_num[1:5]))
 
+        if not train_status:
+            return chnword.wasTrainNotFound.decode('hex')
 
+        import subArr, actArr
 
+        sub_arr_db = subArr.Table()
+        sub_status, sub_detail =\
+            sub_arr_db.catch_by_train(train_detail[0]["train_str"])
+
+        if not sub_status:
+            return chnword.wasSubArrNotAdded.decode('hex')
+
+        act_arr_db = actArr.Table()
+        arrival_db = arrival.Table()
+        station_db = staInfo.Table()
+        res_str = ""
+        for every_sub in sub_detail:
+            arrival_status, arrival_detail =\
+                arrival_db.search_by_id(every_sub["arrival_id"])
+            station_status, station_detail =\
+                station_db.search("sta_tele", arrival_detail[0]["sta_tele"])
+            res_str += station_detail[0]["sta_cn"].decode("hex")
+            res_str += ' '*((6-len(station_detail[0]["sta_cn"])/6)*2)
+
+            act_arr_status, act_arr_detail =\
+                act_arr_db.search_latest(every_sub["sub_arr_id"])
+            if act_arr_status:
+                res_str += chnword.wasSchArr.decode('hex')
+                res_str += tool.int2str(act_arr_detail["schedule_time"])
+                res_str += ' '
+                res_str += act_arr_detail["schedule_date"].strftime('%Y-%m-%d')
+                res_str += chnword.wasActArr.decode('hex')
+                actual_time = act_arr_detail["schedule_time"] +\
+                    act_arr_detail["delay"]
+                # Correct actual arrival time.
+                if actual_time >= 1440:
+                    actual_time -= 1440
+                if actual_time < 0:
+                    actual_time += 1440
+                res_str += tool.int2str(actual_time)
+                res_str += '\n'
+            else:
+                res_str += chnword.wasActNoData.decode('hex')
+        return res_str
 
 
 def test():

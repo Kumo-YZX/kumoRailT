@@ -164,7 +164,7 @@ class ParseMsg(object):
         elif self.query_type == 16:
             self.reply = high_level_search.jks()
         elif self.query_type == 20:
-            pass
+            self.reply = high_level_search.was(self.word[2:7])
         elif self.query_type == 21:
             pass
         elif 7 <= self.query_type <= 11:
