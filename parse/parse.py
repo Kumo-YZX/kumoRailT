@@ -110,6 +110,12 @@ class ParseMsg(object):
         # To view all the arrivals in late-monitor.
         elif type_key == 'JK':
             self.query_type = 16
+        # View latest Actual Arrival data of a train.
+        elif type_key == 'WA':
+            self.query_type = 20
+        # View Actual Arrival of specified station.
+        elif type_key == 'WZ':
+            self.query_type = 21
         # Match nothing.
         else:
             self.query_type = 0
@@ -156,7 +162,11 @@ class ParseMsg(object):
         elif self.query_type == 19:
             self.reply = chnword.addtoLateMonitorNotReady.decode('hex')
         elif self.query_type == 16:
-            self.reply = chnword.viewLateMonitorNotReady.decode('hex')
+            self.reply = high_level_search.jks()
+        elif self.query_type == 20:
+            pass
+        elif self.query_type == 21:
+            pass
         elif 7 <= self.query_type <= 11:
             self.reply = chnword.searchLateHistoryNotReady.decode('hex')
         else:

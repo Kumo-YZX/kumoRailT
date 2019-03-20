@@ -15,9 +15,13 @@ load_module('trainCode', '../dbmaria/dbp3/trainCode.py')
 load_module('train', '../dbmaria/dbp3/train.py')
 load_module('seq', '../dbmaria/dbp2/seq.py')
 load_module('depot', '../dbmaria/dbp2/depot.py')
+load_module('subArr', '../dbmaria/dbp5/subArr.py')
+load_module('actArr', '../dbmaria/dbp5/actArr.py')
 load_module('tool', '../tool/tool.py')
 load_module('depotHook', '../hook/depotHook.py')
 
+# Do not import all modules here.
+# Import them in essential place.
 import arrival, staInfo, trainCode, train, seq, depot
 import tool
 import chnword
@@ -147,6 +151,48 @@ class Hls(object):
         """
         search = depotHook.EMUinfo(int(emu_no))
         return search.form_reply()
+
+    def jks(self):
+        """
+        Catch all trains in the late-monitor
+        :return:
+        """
+        import subArr
+        sub_arr_db = subArr.Table()
+        train_db = train.Table()
+        train_str_list = sub_arr_db.train_list()
+        res_str = "All trains: "
+        for every_str in train_str_list:
+            train_status, train_detail_raw = train_db.search("train_str", every_str)
+            train_detail = train_detail_raw[0]
+            if train_status:
+                # Form the train class
+                if train_detail["train_class"] == 'A':
+                    train_detail["train_class"] = ''
+                res_str = res_str + train_detail["train_class"]
+                # Form the train number
+                if train_detail["train_num0"] == train_detail["train_num1"]:
+
+                    res_str += str(train_detail["train_num0"])
+                # The train has 2 train numbers.
+                else:
+                    temp_num = str(train_detail["train_num0"])
+                    temp_num1 = str(train_detail["train_num1"])
+                    if len(temp_num) != len(temp_num1):
+                        res_str += str(train_detail["train_num0"]) +\
+                            '/' + str(train_detail["train_num1"])
+                    else:
+                        temp_num += '/'
+                        for char_index in range(len(temp_num1)):
+                            if temp_num[char_index] != temp_num1[char_index]:
+                                temp_num += temp_num1[char_index]
+                        res_str += temp_num
+            res_str += ' '
+        return res_str
+
+
+
+
 
 
 def test():
