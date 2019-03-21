@@ -89,7 +89,8 @@ class Table(DbBase):
         """Search for details of a sheet of actArr.
            sub_arr_id must be a int.
         """
-        search_info = self.query_data([{"sub_arr_id": {"judge": '=', "value": sub_arr_id}}])
+        search_info = self.query_data([{"sub_arr_id": {"judge": '=', "value": sub_arr_id}}],
+                                      order_factor={"act_arr_id": "DESC"})
         return len(search_info), search_info
 
     def search_latest(self, sub_arr_id):
