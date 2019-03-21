@@ -109,7 +109,9 @@ class Hls(object):
         if not train_status:
             print('hlseach.py: Warning: This train does not exist.')
             return chnword.trainDoNotExist.decode('hex')
-        reply = chnword.trainNo.decode('hex') + ':' + train_class + str(train_num) + '\n'
+        if train_class == 'A':
+            train_class = ''
+        reply = chnword.trainNo.decode('hex') + ':' + train_class.upper() + str(train_num) + '\n'
         # Search for all the arrivals.
         train_status, arr_info = arrival_db.search(train_info[0]['train_str'])
         if not train_status:
@@ -143,8 +145,8 @@ class Hls(object):
             return chnword.stationDoNotExist.decode('hex')
         reply = ''
         for everySta in station_info:
-            reply = reply + chnword.telecode.decode('hex') + ':' + everySta['sta_tele'].encode('utf8') + ' '
-            reply = reply + chnword.station.decode('hex') + ':' + everySta['sta_cn'].decode('hex') + '\n'
+            reply = reply + chnword.station.decode('hex') + ':' + everySta['sta_cn'].decode('hex') + ' '
+            reply = reply + chnword.telecode.decode('hex') + ':' + everySta['sta_tele'].encode('utf8') + '\n'
 
         return reply[0:-1]
 
@@ -202,11 +204,11 @@ class Hls(object):
         train_db = train.Table()
         if train_num[0].upper() in actual_class:
             train_status, train_detail =\
-                train_db.search_single(train_num[0].upper(),
-                                       int(train_num[1:5]))
+                train_db.search_dual(train_num[0].upper(),
+                                     int(train_num[1:5]))
         else:
             train_status, train_detail = \
-                train_db.search_single('A', int(train_num[1:5]))
+                train_db.search_dual('A', int(train_num[0:4]))
 
         if not train_status:
             return chnword.wasTrainNotFound.decode('hex')
@@ -251,6 +253,79 @@ class Hls(object):
                 res_str += '\n'
             else:
                 res_str += chnword.wasActNoData.decode('hex')
+        return res_str
+
+    def wzs(self, train_num, station):
+        """
+        Get Actual Arrival data of specified train and station.
+        :param train_num: String
+        :param station: String
+        :return:
+        """
+        print("parse/hlsearch.py: Debug: station:" +
+              " {}".format(station.encode('hex')))
+        train_db = train.Table()
+        if train_num[0].upper() in actual_class:
+            train_status, train_detail =\
+                train_db.search_dual(train_num[0].upper(),
+                                     int(train_num[1:5]))
+        else:
+            train_status, train_detail = \
+                train_db.search_dual('A', int(train_num[0:4]))
+
+        if not train_status:
+            return chnword.wzsTrainNotFound.decode('hex')
+
+        station_db = staInfo.Table()
+        station_status, station_detail = \
+            station_db.search("sta_cn", station.encode('hex'))
+        if not station_status:
+            return chnword.wzsStationNotExist.decode('hex')
+
+        # Search for Sub-Arr.
+        import subArr
+        sub_arr_db = subArr.Table()
+        sub_arr_status, sub_arr_list = \
+            sub_arr_db.catch_by_train(train_detail[0]["train_str"])
+        sub_has_station = 0
+        the_sub_arr_id = 0
+        for every_sub_arr in sub_arr_list:
+            if station_detail[0]["sta_tele"] == every_sub_arr["sta_tele"]:
+                the_sub_arr_id = every_sub_arr["sub_arr_id"]
+                sub_has_station = 1
+                break
+        if not sub_has_station:
+            return chnword.wzsStationNotInSub.decode('hex')
+
+        # Search for the Act-Arr.
+        import actArr
+        act_arr_db = actArr.Table()
+        act_arr_status, act_arr_detail = act_arr_db.search(the_sub_arr_id)
+        if not act_arr_status:
+            return station + chnword.wzsArrNoData.decode('hex')
+
+        # Format the reply.
+        res_str = chnword.wzsTrainNumber.decode('hex') +\
+            train_num +\
+            ' ' +\
+            chnword.wzsStation.decode('hex') +\
+            station
+        for every_act_arr in act_arr_detail:
+            actual_time = every_act_arr["schedule_time"] + \
+                          every_act_arr["delay"]
+            # Correct actual arrival time.
+            if actual_time >= 1440:
+                actual_time -= 1440
+            if actual_time < 0:
+                actual_time += 1440
+            res_str += '\n' +\
+                every_act_arr["schedule_date"].strftime("%Y-%m-%d") +\
+                chnword.wzsScheduleTime.decode('hex') +\
+                tool.int2str(every_act_arr["schedule_time"]) +\
+                ' ' +\
+                chnword.wzsActualTime.decode('hex') +\
+                tool.int2str(actual_time)
+
         return res_str
 
 

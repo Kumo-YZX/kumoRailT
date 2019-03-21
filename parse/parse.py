@@ -45,8 +45,9 @@ class ParseMsg(object):
                 if len(self.word) == 4:
                     self.query_type = 12
                 # The query word have more than 4 bits of number, it is a late-query word.
+                # 10-6=4 marks the First byte of the station name of the late-query word.
                 else:
-                    self.query_type = 11
+                    self.query_type = 10
                 return 1
         # Transformation failed.
         except ValueError:
@@ -62,7 +63,10 @@ class ParseMsg(object):
                     # OK, the word head contains a non-local train_number.
                     self.query_type = 6
                     # Find out if the query word has a station name on the end.
+                    # self.query_type-6 marks the First byte of the station name.
+                    # Range: 8-6=2 ~ 11-6=5
                     for location in range(1, len(self.word)):
+                        # If the query word is query-all word, if will match nothing.
                         if self.word[location] < '0' or self.word[location] > '9':
                             self.query_type = self.query_type + location
                             break
@@ -102,8 +106,8 @@ class ParseMsg(object):
         elif type_key == 'DB':
             self.query_type = 15
         # Query for all, including sequence & arrival information.
-        elif type_key == 'AL':
-            self.query_type = 1
+        # elif type_key == 'AL':
+        #     self.query_type = 1
         # Add a train to late-monitor.
         elif type_key == 'TJ':
             self.query_type = 19
@@ -166,9 +170,10 @@ class ParseMsg(object):
         elif self.query_type == 20:
             self.reply = high_level_search.was(self.word[2:7])
         elif self.query_type == 21:
-            pass
-        elif 7 <= self.query_type <= 11:
             self.reply = chnword.searchLateHistoryNotReady.decode('hex')
+        elif 7 <= self.query_type <= 11:
+            self.reply = high_level_search.wzs(self.word[0:self.query_type-6],
+                                               self.word[self.query_type-6:])
         else:
             self.reply = chnword.conditionNotExist.decode('hex')
 
