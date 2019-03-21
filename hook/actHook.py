@@ -47,10 +47,14 @@ class Hook(object):
         SchArrs of today will be set.
         :return: Int, Nums of Arrivals that have been Set.
         """
+        import json
         import datetime
         sub_amount = 0
         date_today = datetime.datetime.today()
-        if self.actdb.verify():
+        str_today = date_today.strftime("%Y-%m-%d")
+        with open("act_status.json", "r") as fi:
+            list_act_status = json.load(fi)
+        if str_today in list_act_status:
             print("hook/actHook.py: Info: No Arrival need to be imported.")
         # Today's log haven't been set
         else:
@@ -60,6 +64,9 @@ class Hook(object):
                 self.actdb.new(every_sub["sub_arr_id"], date_today)
             print("hook/actHook.py: " +
                   "Info: {} Arrival(s) have been imported.".format(sub_amount))
+            list_act_status.append(str_today)
+            with open("act_status.json", "w") as fo:
+                json.dump(list_act_status, fo)
         return sub_amount
 
     def get_act(self, use_proxy=1):
@@ -265,7 +272,7 @@ def run():
     while act_control:
         my_hook.pre_set_sch()
         my_hook.get_act(use_proxy=1)
-        time.sleep(20)
+        time.sleep(40)
         with open("act_control.json", "r") as fi:
             act_control = json.load(fi)["control"]
 
