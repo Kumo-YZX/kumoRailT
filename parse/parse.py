@@ -147,6 +147,8 @@ class ParseMsg(object):
             else:
                 train_class = self.word[0]
                 train_num = self.word[1:]
+            if train_class.upper() not in ['G', 'D', 'C']:
+                self.query_type = 18
 
         # Format replies.
         if self.query_type == 14:
@@ -158,6 +160,7 @@ class ParseMsg(object):
         elif self.query_type == 1:
             self.reply = high_level_search.seqs(train_num, train_class) +\
                    '\n' + high_level_search.arrs(train_num, train_class)
+        # Seq and Arr.
         elif self.query_type == 12 or self.query_type == 6:
             self.reply = high_level_search.seqs(train_num, train_class) +\
                    '\n' + high_level_search.arrs(train_num, train_class)
