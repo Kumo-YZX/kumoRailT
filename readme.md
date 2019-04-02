@@ -6,6 +6,8 @@ We aims to provide more convenience for passengers, with schedule & status histo
 
 It is based on Python tornado and Mariadb.
 
+Chinese Version of README.MD: https://github.com/Kumo-YZX/kumoRailT/blob/master/readme-cn.md
+
 ## Users' Guide
 
 1. Send Train Number to the account directly, you will get the basic info.
